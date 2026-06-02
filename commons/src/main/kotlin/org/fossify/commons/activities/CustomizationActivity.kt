@@ -757,11 +757,8 @@ class CustomizationActivity : BaseSimpleActivity() {
     }
 
     private fun pickPrimaryColor() {
-        if (!packageName.startsWith("org.fossify.", true) && baseConfig.appRunCount > 50) {
-            finish()
-            return
-        }
-
+        // shiroikuma fork: removed the anti-tamper guard that finish()ed this screen mid-edit
+        // once appRunCount > 50 on a non-org.fossify.* id.
         curPrimaryLineColorPicker = LineColorPickerDialog(
             activity = this,
             color = curPrimaryColor,

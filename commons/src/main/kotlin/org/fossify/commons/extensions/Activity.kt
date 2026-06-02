@@ -1753,33 +1753,11 @@ fun BaseSimpleActivity.getAlarmSounds(type: Int, callback: (ArrayList<AlarmSound
     }
 }
 
-fun BaseSimpleActivity.showModdedAppWarning() {
-    val label =
-        "You are using a fake version of the app. For your own safety " +
-                "download the original one from www.fossify.org. Thanks"
-    ConfirmationDialog(
-        activity = this,
-        message = label,
-        positive = R.string.ok,
-        negative = 0
-    ) {
-        launchViewIntent(DEVELOPER_PLAY_STORE_URL)
-    }
-}
-
 fun Activity.checkAppSideloading(): Boolean {
-    val isSideloaded = when (baseConfig.appSideloadingStatus) {
-        SIDELOADING_TRUE -> true
-        SIDELOADING_FALSE -> false
-        else -> isAppSideloaded()
-    }
-
-    baseConfig.appSideloadingStatus = if (isSideloaded) SIDELOADING_TRUE else SIDELOADING_FALSE
-    if (isSideloaded) {
-        showSideloadingDialog()
-    }
-
-    return isSideloaded
+    // shiroikuma fork: sideloading detection disabled. Its probe (loading a Commons drawable)
+    // false-positives once resource shrinking strips the asset, so never flag or nag.
+    baseConfig.appSideloadingStatus = SIDELOADING_FALSE
+    return false
 }
 
 fun Activity.isAppSideloaded(): Boolean {
