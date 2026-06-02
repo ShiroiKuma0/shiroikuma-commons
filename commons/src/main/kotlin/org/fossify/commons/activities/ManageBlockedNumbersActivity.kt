@@ -87,7 +87,10 @@ class ManageBlockedNumbersActivity : BaseSimpleActivity() {
             val isBlockingUnknownNumbers by config.isBlockingUnknownNumbers.collectAsStateWithLifecycle(initialValue = config.blockUnknownNumbers)
             val showCheckmarksOnSwitches by config.showCheckmarksOnSwitchesFlow.collectAsStateWithLifecycle(initialValue = config.showCheckmarksOnSwitches)
             val isDialer = remember {
-                config.appId.startsWith("org.fossify.phone")
+                // shiroikuma: our Phone fork's app id is shiroikuma.denwa (not org.fossify.phone), so the
+                // upstream startsWith check was false — mislabelling the block switches as "messages".
+                val appId = config.appId.removeSuffix(".debug")
+                appId == "org.fossify.phone" || appId == "shiroikuma.denwa"
             }
             val isDefaultDialer: Boolean = onEventValue {
                 context.isDefaultDialer()
@@ -223,7 +226,10 @@ class ManageBlockedNumbersActivity : BaseSimpleActivity() {
     }
 
     private fun maybeSetDefaultCallerIdApp() {
-        if (isQPlus() && baseConfig.appId.startsWith("org.fossify.phone")) {
+        // shiroikuma: recognise our Phone fork's app id (shiroikuma.denwa) too, so it actually requests
+        // the call-screening role from this screen instead of being gated out by the upstream id check.
+        val appId = baseConfig.appId.removeSuffix(".debug")
+        if (isQPlus() && (appId == "org.fossify.phone" || appId == "shiroikuma.denwa")) {
             setDefaultCallerIdApp()
         }
     }

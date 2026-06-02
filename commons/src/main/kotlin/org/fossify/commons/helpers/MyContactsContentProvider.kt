@@ -28,10 +28,9 @@ class MyContactsContentProvider {
 
         fun getSimpleContacts(context: Context, cursor: Cursor?): ArrayList<SimpleContact> {
             val contacts = ArrayList<SimpleContact>()
-            val packageName = context.packageName.removeSuffix(".debug")
-            if (packageName != "org.fossify.phone" && packageName != "org.fossify.messages" && packageName != "org.fossify.calendar") {
-                return contacts
-            }
+            // shiroikuma: upstream gated parsing to org.fossify.{phone,messages,calendar} only — a
+            // client-side allowlist that returned an empty list for our renamed app ids, hiding the
+            // Contacts app's shared private/local contacts from our forks. Dropped.
 
             try {
                 cursor?.use {
@@ -64,10 +63,8 @@ class MyContactsContentProvider {
 
         fun getContacts(context: Context, cursor: Cursor?): ArrayList<Contact> {
             val contacts = ArrayList<Contact>()
-            val packageName = context.packageName.removeSuffix(".debug")
-            if (packageName != "org.fossify.phone" && packageName != "org.fossify.messages" && packageName != "org.fossify.calendar") {
-                return contacts
-            }
+            // shiroikuma: see getSimpleContacts — same client-side allowlist dropped so our renamed
+            // forks can read the Contacts app's shared private/local contacts.
 
             try {
                 cursor?.use {
