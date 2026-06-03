@@ -68,9 +68,23 @@ The `-skN` suffix is **our** patch revision (independent of the upstream Commons
 (`sk1` → `sk2` → …) whenever you change the patch, so consumers opt in by bumping their pin. Current: `sk2`
 (`sk1` = anti-tamper only; `sk2` added the fork-package fixes above).
 
+## No CI / GitHub Actions
+
+We **deleted** all of upstream's `.github/workflows/*` and `.github/dependabot.yml`. This is a
+locally-built fork (published to mavenLocal, consumed on-device), so none of Fossify's CI applies.
+The scheduled `no-response` and `update-lint-baselines` workflows in particular were *failing daily and
+emailing*, because they call reusable workflows in `FossifyOrg/.github` that need org-level secrets this
+fork doesn't have. Keep `.github/` absent — don't re-add any of it.
+
+Note: GitHub runs `on: schedule` workflows **only from the default branch**, which on `origin` is `custom`
+(not `main`). So the deletion only takes effect once it's committed to `custom` and pushed.
+
 ## Rebasing onto a new Commons release
 
 When an app's upstream bumps Commons: `git fetch upstream --tags`, check out the new tag onto `custom`
 (re-applying **both** patch sets above — the anti-tamper removal *and* the fork-package fixes),
 republish with `-PVERSION=<newtag>-sk1` (the `-skN` counter restarts at `sk1` for a new Commons base),
 and bump each app's `commons` pin.
+
+A new upstream tag will **reintroduce** the `.github/` directory (workflows + dependabot). Delete it
+again as part of the rebase — see "No CI / GitHub Actions" above.
