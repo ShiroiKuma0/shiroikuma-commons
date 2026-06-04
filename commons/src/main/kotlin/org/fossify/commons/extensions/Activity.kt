@@ -12,6 +12,10 @@ import android.content.Intent
 import android.content.Intent.EXTRA_STREAM
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
@@ -1609,17 +1613,27 @@ fun Activity.setupDialogStuff(
             if (!isFinishing) {
                 show()
             }
-            getButton(AlertDialog.BUTTON_POSITIVE)?.apply {
-                setTextColor(dialogButtonColor)
-                applyFontToTextView(this)
-            }
-            getButton(AlertDialog.BUTTON_NEGATIVE)?.apply {
-                setTextColor(dialogButtonColor)
-                applyFontToTextView(this)
-            }
-            getButton(AlertDialog.BUTTON_NEUTRAL)?.apply {
-                setTextColor(dialogButtonColor)
-                applyFontToTextView(this)
+            // Fork: optionally box the buttons (theme background fill + accent border + accent text) so
+            // they read clearly on a dark dialog instead of vanishing as borderless same-colored text.
+            val styleButtons = baseConfig.styledDialogButtons
+            val buttonAccent = baseConfig.dialogBorderColor
+            for (which in intArrayOf(AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEGATIVE, AlertDialog.BUTTON_NEUTRAL)) {
+                getButton(which)?.apply {
+                    setTextColor(if (styleButtons) buttonAccent else dialogButtonColor)
+                    applyFontToTextView(this)
+                    if (styleButtons) {
+                        val density = resources.displayMetrics.density
+                        background = GradientDrawable().apply {
+                            shape = GradientDrawable.RECTANGLE
+                            cornerRadius = 8 * density
+                            setColor(baseConfig.backgroundColor)
+                            setStroke((1.5f * density).toInt().coerceAtLeast(1), buttonAccent)
+                        }
+                        val padH = (12 * density).toInt()
+                        val padV = (6 * density).toInt()
+                        setPadding(padH, padV, padH, padV)
+                    }
+                }
             }
 
             applyFontToViewRecursively(view)
@@ -1630,7 +1644,9 @@ fun Activity.setupDialogStuff(
                 else -> resources.getColoredDrawableWithColor(R.drawable.dialog_bg, baseConfig.backgroundColor)
             }
 
-            window?.setBackgroundDrawable(bgDrawable)
+            // Fork: draw a configurable accent border around the dialog so it is delineated from a
+            // same-colored (e.g. black) app background behind it.
+            window?.setBackgroundDrawable(withDialogBorder(bgDrawable))
             callback?.invoke(this)
         }
     }
@@ -1640,6 +1656,27 @@ fun Activity.getAlertDialogBuilder() = if (isDynamicTheme()) {
     MaterialAlertDialogBuilder(this)
 } else {
     AlertDialog.Builder(this)
+}
+
+// Fork: layer a configurable accent border (dp width + color from BaseConfig) over a dialog's window
+// background. A no-op when the width is 0, so stock consumers are unaffected. The border layer is
+// inset by half its width so the whole stroke sits inside the rounded window bounds.
+fun Context.withDialogBorder(background: Drawable): Drawable {
+    val widthPx = (baseConfig.dialogBorderWidth * resources.displayMetrics.density).toInt()
+    if (widthPx <= 0) {
+        return background
+    }
+
+    val border = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        cornerRadius = 16 * resources.displayMetrics.density
+        setColor(Color.TRANSPARENT)
+        setStroke(widthPx, baseConfig.dialogBorderColor)
+    }
+    return LayerDrawable(arrayOf(background, border)).apply {
+        val inset = widthPx / 2
+        setLayerInset(1, inset, inset, inset, inset)
+    }
 }
 
 fun Activity.showPickSecondsDialogHelper(

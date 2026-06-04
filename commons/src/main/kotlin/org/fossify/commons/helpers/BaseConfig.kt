@@ -617,6 +617,20 @@ open class BaseConfig(val context: Context) {
         get() = prefs.getString(CUSTOM_FONT_FILE_NAME, "") ?: ""
         set(customFontFileName) = prefs.edit().putString(CUSTOM_FONT_FILE_NAME, customFontFileName).apply()
 
+    // Fork: accent border drawn around every dialog (width in dp, 0 = no border) and an optional
+    // boxed style for dialog buttons. Defaults keep stock behavior; a consuming app opts in.
+    var dialogBorderColor: Int
+        get() = prefs.getInt(DIALOG_BORDER_COLOR, 0)
+        set(dialogBorderColor) = prefs.edit().putInt(DIALOG_BORDER_COLOR, dialogBorderColor).apply()
+
+    var dialogBorderWidth: Int
+        get() = prefs.getInt(DIALOG_BORDER_WIDTH, 0)
+        set(dialogBorderWidth) = prefs.edit().putInt(DIALOG_BORDER_WIDTH, dialogBorderWidth).apply()
+
+    var styledDialogButtons: Boolean
+        get() = prefs.getBoolean(STYLED_DIALOG_BUTTONS, false)
+        set(styledDialogButtons) = prefs.edit().putBoolean(STYLED_DIALOG_BUTTONS, styledDialogButtons).apply()
+
     protected fun <T> KProperty0<T>.asFlow(emitOnCollect: Boolean = false): Flow<T?> =
         prefs.run { sharedPreferencesCallback(sendOnCollect = emitOnCollect) { this@asFlow.get() } }
 
