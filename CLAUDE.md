@@ -51,6 +51,23 @@ Related, but **not** patched here: `extensions/Activity.kt`'s `launchCallIntent`
 the hard-coded `org.fossify.phone` package (broke calls with "No valid app found"). That one is fixed
 **app-side** in `shiroikuma-denwa` (`extensions/CallExt.kt`), so there is nothing to re-apply here for it.
 
+## Dialog accent border + boxed buttons (branch `custom`, `sk3`)
+
+A fork **addition** (not a fix): on a black-on-black theme a dialog is invisible against the app
+background, because `setupDialogStuff` paints the dialog window with a plain colored background and no
+visible border. Three opt-in, off-by-default `BaseConfig` settings drive a configurable look:
+
+- `dialogBorderColor` / `dialogBorderWidth` (dp, `0` = off) — `extensions/Activity.kt`'s
+  `setupDialogStuff` wraps the window background via the new `Context.withDialogBorder()` helper
+  (a `LayerDrawable` adding an inset accent stroke). No-op at width 0, so stock consumers are unaffected.
+- `styledDialogButtons` — when on, `setupDialogStuff` gives each dialog button a boxed look
+  (theme-background fill + accent stroke + accent text) instead of borderless same-colored text.
+
+Keys live in `helpers/Constants.kt` (`DIALOG_BORDER_COLOR`, `DIALOG_BORDER_WIDTH`,
+`STYLED_DIALOG_BUTTONS`); accessors in `helpers/BaseConfig.kt`. Consuming apps opt in by writing the
+prefs (e.g. shiroikuma-yotehyo seeds yellow / 2 dp / on) and can expose them in their own UI. **Re-apply
+when rebasing onto a new Commons tag.**
+
 ## Build / publish
 
 The apps consume this via **mavenLocal**. A composite `includeBuild` does **not** work — AGP won't expose
@@ -58,15 +75,16 @@ a library's generated ViewBinding classes (e.g. `SearchBarBinding` from `search_
 `<include>`) across the composite boundary, so consumers fail to compile. Publish with:
 
 ```bash
-JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :commons:publishToMavenLocal -PVERSION=6.1.6-sk2
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :commons:publishToMavenLocal -PVERSION=6.1.6-sk3
 ```
 
-→ `~/.m2/repository/org/fossify/commons/6.1.6-sk2/`. Requires a gitignored `local.properties`
-(`sdk.dir=/home/shiroikuma/android-sdk`). The consuming apps pin `commons = "6.1.6-sk2"`.
+→ `~/.m2/repository/org/fossify/commons/6.1.6-sk3/`. Requires a gitignored `local.properties`
+(`sdk.dir=/home/shiroikuma/android-sdk`). The consuming apps pin `commons = "6.1.6-sk3"`.
 
 The `-skN` suffix is **our** patch revision (independent of the upstream Commons version): bump it
-(`sk1` → `sk2` → …) whenever you change the patch, so consumers opt in by bumping their pin. Current: `sk2`
-(`sk1` = anti-tamper only; `sk2` added the fork-package fixes above).
+(`sk1` → `sk2` → …) whenever you change the patch, so consumers opt in by bumping their pin. Current: `sk3`
+(`sk1` = anti-tamper only; `sk2` added the fork-package fixes; `sk3` added the dialog accent border +
+boxed buttons above).
 
 ## No CI / GitHub Actions
 
