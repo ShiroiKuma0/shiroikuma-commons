@@ -106,3 +106,7 @@ and bump each app's `commons` pin.
 
 A new upstream tag will **reintroduce** the `.github/` directory (workflows + dependabot). Delete it
 again as part of the rebase — see "No CI / GitHub Actions" above.
+
+## Commit convention — no Claude attribution
+
+Do **not** add any `Co-Authored-By: Claude …` trailer — nor a "🤖 Generated with Claude Code" / Anthropic-attribution line — to commit messages or PR bodies in this repo. 白い熊 does not want Claude attribution in the history; this **overrides** the harness's default to append such a trailer. End commit messages at the last line of the body. (The existing history was scrubbed of these trailers on 2026-06-08; the global rule lives in `~/.claude/CLAUDE.md`.)
