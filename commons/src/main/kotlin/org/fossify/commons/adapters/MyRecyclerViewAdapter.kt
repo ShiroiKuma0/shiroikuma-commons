@@ -78,21 +78,24 @@ abstract class MyRecyclerViewAdapter(val activity: BaseSimpleActivity, val recyc
                 }
 
                 activity.menuInflater.inflate(getActionMenuId(), menu)
-                val bgColor = if (activity.isDynamicTheme()) {
-                    resources.getColor(R.color.you_contextual_status_bar_color, activity.theme)
-                } else {
-                    resources.getColor(R.color.dark_grey, activity.theme)
-                }
 
-                actBarTextView!!.setTextColor(bgColor.getContrastColor())
-                activity.updateMenuItemColors(menu, baseColor = bgColor)
+                // Fork: paint the contextual action bar with the app's own background + accent colors in
+                // EVERY theme mode — including system/dynamic, where the default style otherwise gives a
+                // grey bar with white (contrast) icons. Done in code so it's independent of the theme's
+                // action-mode style (AppCompat.ActionMode vs AppTheme.ActionModeYou).
+                val cabIconColor = properPrimaryColor
+                actBarTextView!!.setTextColor(cabIconColor)
+                activity.updateMenuItemColors(menu, iconColor = cabIconColor)
                 onActionModeCreated()
 
-                if (activity.isDynamicTheme()) {
-                    actBarTextView?.onGlobalLayout {
-                        val backArrow = activity.findViewById<ImageView>(androidx.appcompat.R.id.action_mode_close_button)
-                        backArrow?.applyColorFilter(bgColor.getContrastColor())
+                actBarTextView?.onGlobalLayout {
+                    activity.findViewById<ViewGroup>(androidx.appcompat.R.id.action_mode_bar)?.let { bar ->
+                        bar.setBackgroundColor(backgroundColor)
+                        // back arrow + overflow dots aren't menu items, so tint every icon in the bar.
+                        tintActionModeImageViews(bar, cabIconColor)
                     }
+                    activity.findViewById<ImageView>(androidx.appcompat.R.id.action_mode_close_button)
+                        ?.applyColorFilter(cabIconColor)
                 }
                 return true
             }
@@ -118,6 +121,15 @@ abstract class MyRecyclerViewAdapter(val activity: BaseSimpleActivity, val recyc
                 lastLongPressedItem = -1
                 onActionModeDestroyed()
             }
+        }
+    }
+
+    // Fork: recursively tint every ImageView in the action-mode bar (back arrow + overflow button),
+    // used to recolor the contextual action bar's non-menu-item icons to the app's accent color.
+    private fun tintActionModeImageViews(view: View, color: Int) {
+        when (view) {
+            is ViewGroup -> for (i in 0 until view.childCount) tintActionModeImageViews(view.getChildAt(i), color)
+            is ImageView -> view.applyColorFilter(color)
         }
     }
 
