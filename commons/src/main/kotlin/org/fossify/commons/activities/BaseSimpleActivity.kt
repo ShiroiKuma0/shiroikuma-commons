@@ -343,13 +343,16 @@ abstract class BaseSimpleActivity : EdgeToEdgeActivity() {
     fun updateMenuItemColors(
         menu: Menu?,
         baseColor: Int = getProperStatusBarColor(),
-        forceWhiteIcons: Boolean = false
+        forceWhiteIcons: Boolean = false,
+        iconColor: Int? = null
     ) {
         if (menu == null) {
             return
         }
 
-        var color = baseColor.getContrastColor()
+        // Fork: iconColor overrides the default contrast-of-baseColor (e.g. to tint action-bar icons
+        // with the app's accent color instead of plain black/white).
+        var color = iconColor ?: baseColor.getContrastColor()
         if (forceWhiteIcons) {
             color = Color.WHITE
         }
