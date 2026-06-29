@@ -68,6 +68,28 @@ Keys live in `helpers/Constants.kt` (`DIALOG_BORDER_COLOR`, `DIALOG_BORDER_WIDTH
 prefs (e.g. shiroikuma-yotehyo seeds yellow / 2 dp / on) and can expose them in their own UI. **Re-apply
 when rebasing onto a new Commons tag.**
 
+## Black/yellow contextual action bar + menus (branch `custom`, `sk4`–`sk5`)
+
+A fork addition: make the contextual action bar (CAB) and dropdown/overflow menus match the
+black-on-yellow theme in **every** theme mode — including system/dynamic, which the fork actually uses
+(`isSystemThemeEnabled` true, with granular black/yellow color overrides), so the `*You` style variants
+apply, **not** the `*_dark` ones.
+
+- **CAB** (`adapters/MyRecyclerViewAdapter.kt`, `onCreateActionMode`): colored in CODE so it is
+  independent of the action-mode style — bar background = `backgroundColor`, and title + menu icons +
+  back arrow + overflow = `properPrimaryColor` (yellow). A `tintActionModeImageViews` traversal recolors
+  the non-menu-item icons (back arrow, overflow). Relies on a new `iconColor` override added to
+  `activities/BaseSimpleActivity.kt`'s `updateMenuItemColors`.
+- **Menus**: pure black + 2 dp yellow border. `drawable/popup_menu_bg_you.xml` (used by the system/You
+  overflow once `TopPopupMenuYou` is repointed to it in `res/values/styles.xml`) and
+  `drawable/top_popup_menu_bg_dark.xml`; `drawable/actionmenu_background.xml` → black for the
+  non-dynamic CAB.
+
+**Re-apply when rebasing onto a new Commons tag.** Gotcha: because the fork runs the system/dynamic
+theme, the CAB must be colored in code (not via the `*_dark` styles) and the menu border must go on the
+`*You` drawable — editing only the `*_dark` variants has **no visible effect** (the mistake `sk4` made;
+`sk5` fixed it by doing the CAB in code and bordering `popup_menu_bg_you`).
+
 ## Build / publish
 
 The apps consume this via **mavenLocal**. A composite `includeBuild` does **not** work — AGP won't expose
@@ -75,16 +97,16 @@ a library's generated ViewBinding classes (e.g. `SearchBarBinding` from `search_
 `<include>`) across the composite boundary, so consumers fail to compile. Publish with:
 
 ```bash
-JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :commons:publishToMavenLocal -PVERSION=6.1.6-sk3
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :commons:publishToMavenLocal -PVERSION=6.1.6-sk5
 ```
 
-→ `~/.m2/repository/org/fossify/commons/6.1.6-sk3/`. Requires a gitignored `local.properties`
-(`sdk.dir=/home/shiroikuma/android-sdk`). The consuming apps pin `commons = "6.1.6-sk3"`.
+→ `~/.m2/repository/org/fossify/commons/6.1.6-sk5/`. Requires a gitignored `local.properties`
+(`sdk.dir=/home/shiroikuma/android-sdk`). The consuming apps pin `commons = "6.1.6-sk5"`.
 
 The `-skN` suffix is **our** patch revision (independent of the upstream Commons version): bump it
-(`sk1` → `sk2` → …) whenever you change the patch, so consumers opt in by bumping their pin. Current: `sk3`
-(`sk1` = anti-tamper only; `sk2` added the fork-package fixes; `sk3` added the dialog accent border +
-boxed buttons above).
+(`sk1` → `sk2` → …) whenever you change the patch, so consumers opt in by bumping their pin. Current: `sk5`
+(`sk1` = anti-tamper only; `sk2` added the fork-package fixes; `sk3` the dialog accent border + boxed
+buttons; `sk4`–`sk5` the black/yellow contextual action bar + menus above).
 
 ## No CI / GitHub Actions
 
