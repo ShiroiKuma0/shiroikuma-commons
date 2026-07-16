@@ -90,6 +90,16 @@ theme, the CAB must be colored in code (not via the `*_dark` styles) and the men
 `*You` drawable — editing only the `*_dark` variants has **no visible effect** (the mistake `sk4` made;
 `sk5` fixed it by doing the CAB in code and bordering `popup_menu_bg_you`).
 
+## Theme-styled toasts (branch `custom`, `sk6`)
+
+A fork addition: toasts raised through `Context.toast()` with a foreground **activity** context use a
+custom view — theme background fill, `getProperPrimaryColor()` text and a 2 dp frame of the same color,
+8 dp corner radius — instead of the system's white bubble (`extensions/Context.kt`, `doToast` →
+`showThemedToast`). Non-activity contexts (receivers, services) keep the plain system toast, because
+custom toast views from a backgrounded app are silently dropped on API 30+ and the message would be
+lost. Theme-driven, so on the black/yellow fork theme this renders black with yellow text + frame.
+**Re-apply when rebasing onto a new Commons tag.**
+
 ## Build / publish
 
 The apps consume this via **mavenLocal**. A composite `includeBuild` does **not** work — AGP won't expose
@@ -104,9 +114,9 @@ JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :commons:publishToMavenLo
 (`sdk.dir=/home/shiroikuma/android-sdk`). The consuming apps pin `commons = "6.1.6-sk5"`.
 
 The `-skN` suffix is **our** patch revision (independent of the upstream Commons version): bump it
-(`sk1` → `sk2` → …) whenever you change the patch, so consumers opt in by bumping their pin. Current: `sk5`
+(`sk1` → `sk2` → …) whenever you change the patch, so consumers opt in by bumping their pin. Current: `sk6`
 (`sk1` = anti-tamper only; `sk2` added the fork-package fixes; `sk3` the dialog accent border + boxed
-buttons; `sk4`–`sk5` the black/yellow contextual action bar + menus above).
+buttons; `sk4`–`sk5` the black/yellow contextual action bar + menus above; `sk6` the theme-styled toasts).
 
 ## No CI / GitHub Actions
 

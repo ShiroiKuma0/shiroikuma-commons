@@ -21,6 +21,7 @@ import android.database.Cursor
 import android.graphics.BitmapFactory
 import android.graphics.Point
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.media.MediaMetadataRetriever
 import android.media.RingtoneManager
 import android.net.Uri
@@ -170,10 +171,41 @@ fun Context.toast(msg: String, length: Int = Toast.LENGTH_SHORT) {
 private fun doToast(context: Context, message: String, length: Int) {
     if (context is Activity) {
         if (!context.isFinishing && !context.isDestroyed) {
-            Toast.makeText(context, message, length).show()
+            showThemedToast(context, message, length)
         }
     } else {
+        // Custom toast views from a backgrounded app are silently dropped on API 30+,
+        // so non-activity contexts (receivers, services) keep the plain system toast.
         Toast.makeText(context, message, length).show()
+    }
+}
+
+// Fork addition: theme-styled toast (app background fill + primary-color text and frame)
+// instead of the system's white bubble. Only used with a foreground activity context.
+@Suppress("DEPRECATION")
+private fun showThemedToast(context: Context, message: String, length: Int) {
+    val density = context.resources.displayMetrics.density
+    val accentColor = context.getProperPrimaryColor()
+    val toastBackground = GradientDrawable().apply {
+        setColor(context.getProperBackgroundColor())
+        setStroke((2 * density).toInt(), accentColor)
+        cornerRadius = 8 * density
+    }
+
+    val textView = TextView(context).apply {
+        text = message
+        setTextColor(accentColor)
+        textSize = 14f
+        background = toastBackground
+        val horizontalPadding = (16 * density).toInt()
+        val verticalPadding = (10 * density).toInt()
+        setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding)
+    }
+
+    Toast(context).apply {
+        duration = length
+        view = textView
+        show()
     }
 }
 
