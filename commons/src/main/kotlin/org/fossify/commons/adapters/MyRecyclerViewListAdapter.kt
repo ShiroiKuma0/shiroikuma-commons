@@ -4,7 +4,6 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.ActionBar
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ListAdapter
@@ -86,21 +85,22 @@ abstract class MyRecyclerViewListAdapter<T>(
                 }
 
                 activity.menuInflater.inflate(getActionMenuId(), menu)
-                val bgColor = if (activity.isDynamicTheme()) {
-                    ResourcesCompat.getColor(resources, R.color.you_contextual_status_bar_color, activity.theme)
-                } else {
-                    resources.getColor(R.color.dark_grey, activity.theme)
-                }
 
-                actBarTextView!!.setTextColor(bgColor.getContrastColor())
-                activity.updateMenuItemColors(menu, baseColor = bgColor)
+                // Fork: the same black/yellow contextual action bar as MyRecyclerViewAdapter (sk4–sk5) —
+                // app background for the bar, accent for the title, menu icons, back arrow and overflow
+                // dots — in every theme mode. This list-adapter twin was missed then (sk8).
+                val cabIconColor = properPrimaryColor
+                actBarTextView!!.setTextColor(cabIconColor)
+                activity.updateMenuItemColors(menu, iconColor = cabIconColor)
                 onActionModeCreated()
 
-                if (activity.isDynamicTheme()) {
-                    actBarTextView?.onGlobalLayout {
-                        val backArrow = activity.findViewById<ImageView>(androidx.appcompat.R.id.action_mode_close_button)
-                        backArrow?.applyColorFilter(bgColor.getContrastColor())
+                actBarTextView?.onGlobalLayout {
+                    activity.findViewById<ViewGroup>(androidx.appcompat.R.id.action_mode_bar)?.let { bar ->
+                        bar.setBackgroundColor(backgroundColor)
+                        tintActionModeImageViews(bar, cabIconColor)
                     }
+                    activity.findViewById<ImageView>(androidx.appcompat.R.id.action_mode_close_button)
+                        ?.applyColorFilter(cabIconColor)
                 }
                 return true
             }
@@ -126,6 +126,14 @@ abstract class MyRecyclerViewListAdapter<T>(
                 lastLongPressedItem = -1
                 onActionModeDestroyed()
             }
+        }
+    }
+
+    // Fork: recursively tint every ImageView in the action-mode bar (back arrow + overflow button).
+    private fun tintActionModeImageViews(view: View, color: Int) {
+        when (view) {
+            is ViewGroup -> for (i in 0 until view.childCount) tintActionModeImageViews(view.getChildAt(i), color)
+            is ImageView -> view.applyColorFilter(color)
         }
     }
 

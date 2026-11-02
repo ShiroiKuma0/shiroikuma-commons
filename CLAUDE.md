@@ -90,6 +90,11 @@ theme, the CAB must be colored in code (not via the `*_dark` styles) and the men
 `*You` drawable — editing only the `*_dark` variants has **no visible effect** (the mistake `sk4` made;
 `sk5` fixed it by doing the CAB in code and bordering `popup_menu_bg_you`).
 
+`sk8` applied the same in-code CAB colouring to **`MyRecyclerViewListAdapter`** — the `ListAdapter`
+twin of `MyRecyclerViewAdapter` that `sk4`–`sk5` missed, so apps built on it (e.g. Messages'
+conversation list) still showed the grey bar with white title and grey back arrow. Patch both
+adapters when rebasing.
+
 ## Theme-styled toasts (branch `custom`, `sk6`)
 
 A fork addition: toasts raised through `Context.toast()` with a foreground **activity** context use a
