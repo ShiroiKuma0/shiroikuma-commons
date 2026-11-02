@@ -5,7 +5,15 @@
     <queries>
         <package android:name="org.fossify.thankyou.debug" />
         <package android:name="org.fossify.thankyou" />
+        <!-- Fork (sk10): our Contacts fork, whose provider getMyContactsCursor() reads first. -->
+        <package android:name="shiroikuma.renrakusaki" />
+        <package android:name="shiroikuma.renrakusaki.debug" />
     </queries>
+
+    <!-- Fork (sk10): read our Contacts fork's private contacts. Signature-level on its side, so it is
+         granted only to apps signed with renrakusaki's key; for any other app it is simply denied. -->
+    <uses-permission android:name="shiroikuma.renrakusaki.permission.READ_PRIVATE_DATA" />
+    <uses-permission android:name="shiroikuma.renrakusaki.debug.permission.READ_PRIVATE_DATA" />
 
     <uses-feature
         android:name="android.hardware.faketouch"

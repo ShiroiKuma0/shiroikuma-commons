@@ -175,7 +175,7 @@ private fun doToast(context: Context, message: String, length: Int) {
         }
     } else {
         // Custom toast views from a backgrounded app are silently dropped on API 30+,
-        // so non-activity contexts (receivers, services) keep the plain system toast.
+        // so with no activity on screen the plain system toast is the only one that shows.
         Toast.makeText(context, message, length).show()
     }
 }
@@ -577,13 +577,26 @@ fun Context.getSizeFromContentUri(uri: Uri): Long {
 
 fun Context.getMyContentProviderCursorLoader() = CursorLoader(this, MyContentProvider.MY_CONTENT_URI, null, null, null, null)
 
-fun Context.getMyContactsCursor(favoritesOnly: Boolean, withPhoneNumbersOnly: Boolean) = try {
+// Fork (sk10): our Contacts fork (shiroikuma-renrakusaki) serves its private contacts at
+// <applicationId>.contactsprovider, not at the stock authority, so a consumer that only asked the
+// stock one saw no private contact at all. Ours are tried first, the stock one last. Reading ours
+// needs renrakusaki's signature-level READ_PRIVATE_DATA (declared in this library's manifest), which
+// Android grants only to an app signed with the same key as renrakusaki.
+fun Context.getMyContactsCursor(favoritesOnly: Boolean, withPhoneNumbersOnly: Boolean): Cursor? {
     val getFavoritesOnly = if (favoritesOnly) "1" else "0"
     val getWithPhoneNumbersOnly = if (withPhoneNumbersOnly) "1" else "0"
     val args = arrayOf(getFavoritesOnly, getWithPhoneNumbersOnly)
-    CursorLoader(this, MyContactsContentProvider.CONTACTS_CONTENT_URI, null, null, args, null).loadInBackground()
-} catch (e: Exception) {
-    null
+    for (uri in MyContactsContentProvider.CONTACTS_CONTENT_URIS) {
+        val cursor = try {
+            CursorLoader(this, uri, null, null, args, null).loadInBackground()
+        } catch (e: Exception) {
+            null
+        }
+        if (cursor != null) {
+            return cursor
+        }
+    }
+    return null
 }
 
 fun Context.getCurrentFormattedDateTime(): String {

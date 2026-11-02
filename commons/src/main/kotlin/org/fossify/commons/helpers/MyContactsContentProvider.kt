@@ -17,6 +17,14 @@ class MyContactsContentProvider {
         private const val AUTHORITY = "org.fossify.commons.contactsprovider"
         val CONTACTS_CONTENT_URI = Uri.parse("content://$AUTHORITY/contacts")
 
+        // Fork (sk10): where getMyContactsCursor() looks, in order — our Contacts fork (release, then
+        // debug build) before the stock Fossify Contacts authority.
+        val CONTACTS_CONTENT_URIS = listOf(
+            Uri.parse("content://shiroikuma.renrakusaki.contactsprovider/contacts"),
+            Uri.parse("content://shiroikuma.renrakusaki.debug.contactsprovider/contacts"),
+            CONTACTS_CONTENT_URI,
+        )
+
         const val FAVORITES_ONLY = "favorites_only"
         const val COL_RAW_ID = "raw_id"
         const val COL_CONTACT_ID = "contact_id"
