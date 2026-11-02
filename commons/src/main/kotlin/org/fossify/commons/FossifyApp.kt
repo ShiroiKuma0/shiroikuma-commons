@@ -13,6 +13,8 @@ open class FossifyApp : Application() {
         super.onCreate()
         checkUseEnglish()
         setupAppLockManager()
+        // Fork (sk9): know the resumed activity, for theme-styled toasts raised from non-activity contexts.
+        registerActivityLifecycleCallbacks(org.fossify.commons.helpers.ForegroundActivity)
     }
 
     private fun setupAppLockManager() {

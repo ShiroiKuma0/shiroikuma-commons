@@ -169,9 +169,11 @@ fun Context.toast(msg: String, length: Int = Toast.LENGTH_SHORT) {
 }
 
 private fun doToast(context: Context, message: String, length: Int) {
-    if (context is Activity) {
-        if (!context.isFinishing && !context.isDestroyed) {
-            showThemedToast(context, message, length)
+    // Fork (sk9): a receiver / service context borrows the resumed activity, if the app is on screen.
+    val host = context as? Activity ?: org.fossify.commons.helpers.ForegroundActivity.activity
+    if (host != null) {
+        if (!host.isFinishing && !host.isDestroyed) {
+            showThemedToast(host, message, length)
         }
     } else {
         // Custom toast views from a backgrounded app are silently dropped on API 30+,
