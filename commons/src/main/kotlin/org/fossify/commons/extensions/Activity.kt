@@ -1617,7 +1617,44 @@ fun Activity.setupDialogStuff(
             // they read clearly on a dark dialog instead of vanishing as borderless same-colored text.
             val styleButtons = baseConfig.styledDialogButtons
             val buttonAccent = baseConfig.dialogBorderColor
+            val pillButtons = baseConfig.pillDialogButtons
             for (which in intArrayOf(AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEGATIVE, AlertDialog.BUTTON_NEUTRAL)) {
+                // Fork (sk12): pills — the positive button is the main action (thick frame, bold text),
+                // the others thin.
+                if (pillButtons) {
+                    getButton(which)?.apply {
+                        val density = resources.displayMetrics.density
+                        val accent = if (buttonAccent != 0) buttonAccent else primaryColor
+                        val main = which == AlertDialog.BUTTON_POSITIVE
+                        setTextColor(accent)
+                        applyFontToTextView(this)
+                        isAllCaps = false
+                        setTypeface(typeface, if (main) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+                        // A MaterialButton (Material theme) keeps its own tinted background and ignores a
+                        // replacement unless the tint is cleared first; its insets would also shrink the pill.
+                        (this as? com.google.android.material.button.MaterialButton)?.apply {
+                            backgroundTintList = null
+                            rippleColor = null
+                            insetTop = 0
+                            insetBottom = 0
+                            strokeWidth = 0
+                            cornerRadius = 0
+                        }
+                        stateListAnimator = null
+                        elevation = 0f
+                        background = pillDrawable(accent, baseConfig.backgroundColor, main)
+                        val padH = (18 * density).toInt()
+                        val padV = (9 * density).toInt()
+                        setPadding(padH, padV, padH, padV)
+                        minHeight = 0
+                        minimumHeight = 0
+                        (layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.let {
+                            it.marginStart = (10 * density).toInt()
+                            layoutParams = it
+                        }
+                    }
+                    continue
+                }
                 getButton(which)?.apply {
                     setTextColor(if (styleButtons) buttonAccent else dialogButtonColor)
                     applyFontToTextView(this)

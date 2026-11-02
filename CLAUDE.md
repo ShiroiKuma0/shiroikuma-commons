@@ -124,11 +124,11 @@ JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :commons:publishToMavenLo
 (`sdk.dir=/home/shiroikuma/android-sdk`). The consuming apps pin `commons = "6.1.6-sk5"`.
 
 The `-skN` suffix is **our** patch revision (independent of the upstream Commons version): bump it
-(`sk1` → `sk2` → …) whenever you change the patch, so consumers opt in by bumping their pin. Current: `sk10`
+(`sk1` → `sk2` → …) whenever you change the patch, so consumers opt in by bumping their pin. Current: `sk12`
 (`sk1` = anti-tamper only; `sk2` added the fork-package fixes; `sk3` the dialog accent border + boxed
 buttons; `sk4`–`sk5` the black/yellow contextual action bar + menus above; `sk6` the theme-styled toasts;
 `sk7` the `ContactsHelper` raw-contact insert falling back to the local account when a stale source has
-no account type — published 2026-07-23, committed 2026-11-02; `sk8` = `sk7` + the list-adapter CAB; `sk9` themed toasts from non-activity contexts while on screen; `sk10` `getMyContactsCursor()` reads our Contacts fork's private contacts — see below).
+no account type — published 2026-07-23, committed 2026-11-02; `sk8` = `sk7` + the list-adapter CAB; `sk9` themed toasts from non-activity contexts while on screen; `sk10` `getMyContactsCursor()` reads our Contacts fork's private contacts — see below; `sk11` `Contact.extra` — see below; `sk12` pill-shaped dialog buttons — see below).
 
 ## Private contacts come from our Contacts fork (`sk10`)
 
@@ -167,3 +167,26 @@ again as part of the rebase — see "No CI / GitHub Actions" above.
 ## Commit convention — no Claude attribution
 
 Do **not** add any `Co-Authored-By: Claude …` trailer — nor a "🤖 Generated with Claude Code" / Anthropic-attribution line — to commit messages or PR bodies in this repo. 白い熊 does not want Claude attribution in the history; this **overrides** the harness's default to append such a trailer. End commit messages at the last line of the body. (The existing history was scrubbed of these trailers on 2026-06-08; the global rule lives in `~/.claude/CLAUDE.md`.)
+
+## Every contact field — `Contact.extra` (`sk11`)
+
+`ContactExtraData` (models/contacts) carries everything the Fossify model had no field for: the
+reading, relations, SIP addresses, the organization's department / job description / office / reading /
+symbol, send-to-voicemail, and verbatim `DataRow`s for every other provider column or kind; `Event`
+gained `label`. `Contact.extra` holds it; the private DB stores it in a new `extra` column
+(`ContactsDatabase` version 4, `MIGRATION_3_4`). `helpers/ContactExtraIO` reads it for system contacts
+(`getContactWithId`, `fillExtras`) and writes it after `insertContact` (always) and `updateContact`
+(only when `extra.loaded` — a list-row contact without its extras must not wipe them).
+`ContactsHelper.lastInsertedId` reports the id an insert created (raw id or private local id).
+Consumer R8 rules keep the new classes' field names (Gson reads them). Additive: forks that never touch
+`extra` behave exactly as before. **Re-apply when rebasing.**
+
+## Pill-shaped dialog buttons (`sk12`)
+
+`extensions/Pill.kt` `pillDrawable(accent, background, main)` draws the family's action pill: always
+outlined on the background colour, never filled; a **main** action has a thick (3 dp) frame, every other
+pill a thin (1.25 dp) one, and the caller makes a main pill's text bold. `setupDialogStuff` uses it for
+the dialog buttons when `BaseConfig.pillDialogButtons` is on (opt-in, default off; it takes precedence
+over the boxed `styledDialogButtons`): the positive button is the main pill, the others thin. Under a
+Material theme the buttons are `MaterialButton`s, which ignore a replacement background unless their
+tint, insets, corner and elevation are cleared first — the code does that. **Re-apply when rebasing.**

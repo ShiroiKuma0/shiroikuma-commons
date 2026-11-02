@@ -631,6 +631,10 @@ open class BaseConfig(val context: Context) {
         get() = prefs.getBoolean(STYLED_DIALOG_BUTTONS, false)
         set(styledDialogButtons) = prefs.edit().putBoolean(STYLED_DIALOG_BUTTONS, styledDialogButtons).apply()
 
+    var pillDialogButtons: Boolean
+        get() = prefs.getBoolean(PILL_DIALOG_BUTTONS, false)
+        set(pillDialogButtons) = prefs.edit().putBoolean(PILL_DIALOG_BUTTONS, pillDialogButtons).apply()
+
     protected fun <T> KProperty0<T>.asFlow(emitOnCollect: Boolean = false): Flow<T?> =
         prefs.run { sharedPreferencesCallback(sendOnCollect = emitOnCollect) { this@asFlow.get() } }
 
