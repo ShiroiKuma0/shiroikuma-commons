@@ -118,7 +118,7 @@ The `-skN` suffix is **our** patch revision (independent of the upstream Commons
 (`sk1` = anti-tamper only; `sk2` added the fork-package fixes; `sk3` the dialog accent border + boxed
 buttons; `sk4`–`sk5` the black/yellow contextual action bar + menus above; `sk6` the theme-styled toasts;
 `sk7` the `ContactsHelper` raw-contact insert falling back to the local account when a stale source has
-no account type — published 2026-07-23 but **not yet committed**; `sk8` = `sk7` + the list-adapter CAB; `sk9` themed toasts from non-activity contexts while on screen; `sk10` `getMyContactsCursor()` reads our Contacts fork's private contacts — see below).
+no account type — published 2026-07-23, committed 2026-11-02; `sk8` = `sk7` + the list-adapter CAB; `sk9` themed toasts from non-activity contexts while on screen; `sk10` `getMyContactsCursor()` reads our Contacts fork's private contacts — see below).
 
 ## Private contacts come from our Contacts fork (`sk10`)
 
