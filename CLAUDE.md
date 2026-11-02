@@ -114,9 +114,24 @@ JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :commons:publishToMavenLo
 (`sdk.dir=/home/shiroikuma/android-sdk`). The consuming apps pin `commons = "6.1.6-sk5"`.
 
 The `-skN` suffix is **our** patch revision (independent of the upstream Commons version): bump it
-(`sk1` → `sk2` → …) whenever you change the patch, so consumers opt in by bumping their pin. Current: `sk6`
+(`sk1` → `sk2` → …) whenever you change the patch, so consumers opt in by bumping their pin. Current: `sk10`
 (`sk1` = anti-tamper only; `sk2` added the fork-package fixes; `sk3` the dialog accent border + boxed
-buttons; `sk4`–`sk5` the black/yellow contextual action bar + menus above; `sk6` the theme-styled toasts).
+buttons; `sk4`–`sk5` the black/yellow contextual action bar + menus above; `sk6` the theme-styled toasts;
+`sk7` the `ContactsHelper` raw-contact insert falling back to the local account when a stale source has
+no account type — published 2026-07-23 but **not yet committed**; `sk8` = `sk7` + the list-adapter CAB; `sk9` themed toasts from non-activity contexts while on screen; `sk10` `getMyContactsCursor()` reads our Contacts fork's private contacts — see below).
+
+## Private contacts come from our Contacts fork (`sk10`)
+
+Stock `getMyContactsCursor()` asked only `org.fossify.commons.contactsprovider`, which only stock Fossify
+Contacts serves; shiroikuma-renrakusaki serves `<applicationId>.contactsprovider`, so every consumer saw
+**no** private ("Phone storage (not visible by other apps)") contact — no names in the dialer, Messages
+or Calendar, and the dialer's "block unknown numbers" rejected them. `sk10` tries
+`MyContactsContentProvider.CONTACTS_CONTENT_URIS` in order (`shiroikuma.renrakusaki`, its `.debug`, then
+the stock authority), and this library's manifest adds the renrakusaki `<queries>` packages and
+`uses-permission` for `shiroikuma.renrakusaki[.debug].permission.READ_PRIVATE_DATA`. That permission is
+**signature-level** on renrakusaki's side: it is granted only to an app signed with renrakusaki's key
+(`shiroikuma-denwa.jks` — denwa, yotehyo), and silently denied to any other (messeji signs with
+`shiroikuma-messages.jks`). renrakusaki also only answers while its "Show private contacts…" setting is on.
 
 ## No CI / GitHub Actions
 
