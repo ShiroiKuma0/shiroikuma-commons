@@ -103,6 +103,11 @@ custom view — theme background fill, `getProperPrimaryColor()` text and a 2 dp
 `showThemedToast`). Non-activity contexts (receivers, services) keep the plain system toast, because
 custom toast views from a backgrounded app are silently dropped on API 30+ and the message would be
 lost. Theme-driven, so on the black/yellow fork theme this renders black with yellow text + frame.
+
+`sk9`: a non-activity context (receiver, service) borrows the **resumed activity** when the app is on
+screen — `helpers/ForegroundActivity.kt`, an `ActivityLifecycleCallbacks` registered by `FossifyApp` —
+so e.g. an MMS-send failure toast is themed too. With nothing resumed it still falls back to the
+system toast.
 **Re-apply when rebasing onto a new Commons tag.**
 
 ## Build / publish
