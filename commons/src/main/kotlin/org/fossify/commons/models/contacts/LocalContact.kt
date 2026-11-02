@@ -28,7 +28,10 @@ data class LocalContact(
     @ColumnInfo(name = "job_position") var jobPosition: String,
     @ColumnInfo(name = "websites") var websites: ArrayList<String>,
     @ColumnInfo(name = "ims") var IMs: ArrayList<IM>,
-    @ColumnInfo(name = "ringtone") var ringtone: String?
+    @ColumnInfo(name = "ringtone") var ringtone: String?,
+    // Fork (sk11): ContactExtraData as JSON — reading, relations, SIP addresses, organization details,
+    // send-to-voicemail and every other provider value, so a private contact is as complete as a system one.
+    @ColumnInfo(name = "extra") var extra: ContactExtraData = ContactExtraData()
 ) {
     override fun equals(other: Any?) = id == (other as? LocalContact?)?.id
 

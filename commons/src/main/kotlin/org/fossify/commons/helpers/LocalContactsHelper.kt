@@ -28,7 +28,11 @@ class LocalContactsHelper(val context: Context) {
 
     fun insertOrUpdateContact(contact: Contact): Boolean {
         val localContact = convertContactToLocalContact(contact)
-        return context.contactsDB.insertOrUpdate(localContact) > 0
+        val id = context.contactsDB.insertOrUpdate(localContact)
+        if (id > 0) {
+            ContactsHelper.lastInsertedId = id.toInt()
+        }
+        return id > 0
     }
 
     fun addContactsToGroup(contacts: ArrayList<Contact>, groupId: Long) {
@@ -122,6 +126,7 @@ class LocalContactsHelper(val context: Context) {
             websites = localContact.websites
             IMs = localContact.IMs
             ringtone = localContact.ringtone
+            extra = localContact.extra
         }
     }
 
@@ -153,6 +158,7 @@ class LocalContactsHelper(val context: Context) {
             websites = contact.websites
             IMs = contact.IMs
             ringtone = contact.ringtone
+            extra = contact.extra
         }
     }
 

@@ -1,5 +1,6 @@
 package org.fossify.commons.helpers
 
+import org.fossify.commons.models.contacts.ContactExtraData
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -740,7 +741,8 @@ fun getEmptyLocalContact() = LocalContact(
     "",
     ArrayList(),
     ArrayList(),
-    null
+    null,
+    ContactExtraData()
 )
 
 fun getProperText(text: String, shouldNormalize: Boolean) =

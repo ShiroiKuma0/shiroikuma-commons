@@ -23,6 +23,13 @@ import java.io.OutputStream
 import java.util.Locale
 
 class ContactsHelper(val context: Context) {
+    companion object {
+        // Fork (sk11): the id of the contact the last successful insert created — the raw id of a
+        // system contact, the local id of a private one. insertContact() itself answers only a Boolean.
+        @Volatile
+        var lastInsertedId = 0
+    }
+
     private val BATCH_SIZE = 50
     private var displayContactSources = ArrayList<String>()
 
@@ -434,7 +441,8 @@ class ContactsHelper(val context: Context) {
         val projection = arrayOf(
             Data.RAW_CONTACT_ID,
             CommonDataKinds.Event.START_DATE,
-            CommonDataKinds.Event.TYPE
+            CommonDataKinds.Event.TYPE,
+            CommonDataKinds.Event.LABEL
         )
 
         val selection = getSourcesSelection(true, contactId != null)
@@ -449,7 +457,7 @@ class ContactsHelper(val context: Context) {
                 events.put(id, ArrayList())
             }
 
-            events[id]!!.add(Event(startDate, type))
+            events[id]!!.add(Event(startDate, type, cursor.getStringValue(CommonDataKinds.Event.LABEL) ?: ""))
         }
 
         return events
@@ -712,7 +720,19 @@ class ContactsHelper(val context: Context) {
 
         val selection = "(${Data.MIMETYPE} = ? OR ${Data.MIMETYPE} = ?) AND ${Data.RAW_CONTACT_ID} = ?"
         val selectionArgs = arrayOf(CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE, CommonDataKinds.Organization.CONTENT_ITEM_TYPE, id.toString())
-        return parseContactCursor(selection, selectionArgs)
+        // Fork (sk11): a single contact comes with everything — see ContactExtraIO.
+        return parseContactCursor(selection, selectionArgs)?.apply { extra = ContactExtraIO.read(context, id) }
+    }
+
+    /**
+     * Fork (sk11): fill Contact.extra on these system contacts (private ones already carry it) — one pass
+     * over the provider, for exports that must be complete. Blocking.
+     */
+    fun fillExtras(contacts: List<Contact>) {
+        val device = contacts.filter { !it.isPrivate() }
+        if (device.isEmpty()) return
+        val extras = ContactExtraIO.readAll(context, null)
+        device.forEach { contact -> extras[contact.id]?.let { contact.extra = it } }
     }
 
     fun getContactFromUri(uri: Uri): Contact? {
@@ -1069,6 +1089,7 @@ class ContactsHelper(val context: Context) {
                     withValue(Data.MIMETYPE, CommonDataKinds.Event.CONTENT_ITEM_TYPE)
                     withValue(CommonDataKinds.Event.START_DATE, it.value)
                     withValue(CommonDataKinds.Event.TYPE, it.type)
+                    withValue(CommonDataKinds.Event.LABEL, it.label)
                     operations.add(build())
                 }
             }
@@ -1169,6 +1190,11 @@ class ContactsHelper(val context: Context) {
             }
 
             context.contentResolver.applyBatch(AUTHORITY, operations)
+            // Only when the extras were read in: a contact from a list row has none loaded, and writing its
+            // empty extra would erase the reading, relations, SIP addresses… it never saw.
+            if (contact.extra.loaded) {
+                ContactExtraIO.write(context, contact.id, contact, isNewRawContact = false)
+            }
             return true
         } catch (e: Exception) {
             context.showErrorToast(e)
@@ -1364,6 +1390,7 @@ class ContactsHelper(val context: Context) {
                     withValue(Data.MIMETYPE, CommonDataKinds.Event.CONTENT_ITEM_TYPE)
                     withValue(CommonDataKinds.Event.START_DATE, it.value)
                     withValue(CommonDataKinds.Event.TYPE, it.type)
+                    withValue(CommonDataKinds.Event.LABEL, it.label)
                     operations.add(build())
                 }
             }
@@ -1432,6 +1459,9 @@ class ContactsHelper(val context: Context) {
 
             // fullsize photo
             val rawId = ContentUris.parseId(results[0].uri!!)
+            // Fork (sk11): everything the model does not hold, and the id for callers that need it.
+            ContactExtraIO.write(context, rawId.toInt(), contact, isNewRawContact = true)
+            lastInsertedId = rawId.toInt()
             if (contact.photoUri.isNotEmpty() && fullSizePhotoData != null) {
                 addFullSizePhoto(rawId, fullSizePhotoData)
             }
