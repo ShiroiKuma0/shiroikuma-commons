@@ -1265,8 +1265,18 @@ class ContactsHelper(val context: Context) {
         try {
             val operations = ArrayList<ContentProviderOperation>()
             ContentProviderOperation.newInsert(RawContacts.CONTENT_URI).apply {
-                withValue(RawContacts.ACCOUNT_NAME, contact.source)
-                withValue(RawContacts.ACCOUNT_TYPE, getContactSourceType(contact.source))
+                // The provider rejects an insert where exactly one of name/type is empty ("Must specify
+                // both or neither of ACCOUNT_NAME and ACCOUNT_TYPE"). A stale source — e.g. "Phone" after
+                // the contacts DB was recreated — resolves to an empty type, so fall back to the local
+                // phone-storage account (null/null) instead of failing the whole import.
+                val accountType = getContactSourceType(contact.source)
+                if (contact.source.isEmpty() || accountType.isEmpty()) {
+                    withValue(RawContacts.ACCOUNT_NAME, null)
+                    withValue(RawContacts.ACCOUNT_TYPE, null)
+                } else {
+                    withValue(RawContacts.ACCOUNT_NAME, contact.source)
+                    withValue(RawContacts.ACCOUNT_TYPE, accountType)
+                }
                 operations.add(build())
             }
 
