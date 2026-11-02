@@ -1,5 +1,6 @@
 package org.fossify.commons.helpers
 
+import org.fossify.commons.models.contacts.ContactExtraData
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -20,6 +21,18 @@ class Converters {
     private val addressType = object : TypeToken<List<Address>>() {}.type
     private val eventType = object : TypeToken<List<Event>>() {}.type
     private val imType = object : TypeToken<List<IM>>() {}.type
+
+    // Fork (sk11): the private store's extra column. A row migrated from version 3 holds ''.
+    @TypeConverter
+    fun jsonToContactExtra(value: String?): ContactExtraData =
+        if (value.isNullOrBlank()) ContactExtraData() else try {
+            gson.fromJson(value, ContactExtraData::class.java) ?: ContactExtraData()
+        } catch (e: Exception) {
+            ContactExtraData()
+        }
+
+    @TypeConverter
+    fun contactExtraToJson(extra: ContactExtraData): String = gson.toJson(extra)
 
     @TypeConverter
     fun jsonToStringList(value: String): ArrayList<String> = gson.fromJson(value, stringType)

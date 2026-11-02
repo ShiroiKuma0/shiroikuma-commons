@@ -64,3 +64,10 @@
 -keepclassmembers,allowobfuscation,allowoptimization class <1> {
   <init>();
 }
+
+# Fork (sk11): ContactExtraData is stored as JSON (Gson) in the private store's extra column — keep the
+# field names stable across builds, or an update could not read what an earlier build wrote.
+-keep class org.fossify.commons.models.contacts.ContactExtraData { *; }
+-keep class org.fossify.commons.models.contacts.Relation { *; }
+-keep class org.fossify.commons.models.contacts.SipAddress { *; }
+-keep class org.fossify.commons.models.contacts.DataRow { *; }

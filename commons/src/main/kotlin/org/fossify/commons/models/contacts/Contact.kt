@@ -37,7 +37,9 @@ data class Contact(
     var websites: ArrayList<String> = arrayListOf(),
     var IMs: ArrayList<IM> = arrayListOf(),
     var mimetype: String = "",
-    var ringtone: String? = ""
+    var ringtone: String? = "",
+    // Fork (sk11): every provider value the fields above do not hold — see ContactExtraData.
+    var extra: ContactExtraData = ContactExtraData()
 ) : Comparable<Contact> {
     val rawId = id
     val name = getNameToDisplay()
