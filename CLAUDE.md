@@ -124,11 +124,11 @@ JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :commons:publishToMavenLo
 (`sdk.dir=/home/shiroikuma/android-sdk`). The consuming apps pin `commons = "6.1.6-sk5"`.
 
 The `-skN` suffix is **our** patch revision (independent of the upstream Commons version): bump it
-(`sk1` → `sk2` → …) whenever you change the patch, so consumers opt in by bumping their pin. Current: `sk12`
+(`sk1` → `sk2` → …) whenever you change the patch, so consumers opt in by bumping their pin. Current: `sk13`
 (`sk1` = anti-tamper only; `sk2` added the fork-package fixes; `sk3` the dialog accent border + boxed
 buttons; `sk4`–`sk5` the black/yellow contextual action bar + menus above; `sk6` the theme-styled toasts;
 `sk7` the `ContactsHelper` raw-contact insert falling back to the local account when a stale source has
-no account type — published 2026-07-23, committed 2026-11-02; `sk8` = `sk7` + the list-adapter CAB; `sk9` themed toasts from non-activity contexts while on screen; `sk10` `getMyContactsCursor()` reads our Contacts fork's private contacts — see below; `sk11` `Contact.extra` — see below; `sk12` pill-shaped dialog buttons — see below).
+no account type — published 2026-07-23, committed 2026-11-02; `sk8` = `sk7` + the list-adapter CAB; `sk9` themed toasts from non-activity contexts while on screen; `sk10` `getMyContactsCursor()` reads our Contacts fork's private contacts — see below; `sk11` `Contact.extra` — see below; `sk12` pill-shaped dialog buttons — see below; `sk13` swipe to call and the call-log formats shared by denwa and renrakusaki — see below).
 
 ## Private contacts come from our Contacts fork (`sk10`)
 
@@ -190,3 +190,22 @@ the dialog buttons when `BaseConfig.pillDialogButtons` is on (opt-in, default of
 over the boxed `styledDialogButtons`): the positive button is the main pill, the others thin. Under a
 Material theme the buttons are `MaterialButton`s, which ignore a replacement background unless their
 tint, insets, corner and elevation are cleared first — the code does that. **Re-apply when rebasing.**
+
+## Swipe to call and the call-log formats, shared by denwa and renrakusaki (`sk13`)
+
+Both of our telephony forks used to carry a hand-kept copy of these; they now live here, purely added:
+
+- `helpers/SwipeToCallCallback.kt` — denwa's swipe-only `ItemTouchHelper.SimpleCallback`: left = SIM 1,
+  right = SIM 2, the row slides out at the finger's speed, then shows a filled “Dialing…” row until the
+  activity stops. The app passes `sim1Color`, `sim2Color`, `canSwipe`, `onSwipe`, `simTextColor` (the 1/2
+  glyph and the text) and `dialingText` (its own string). Placing the call stays in each app.
+- `extensions/SwipeToCall.kt` — `RecyclerView.setupSwipeToCall(callback)` attaches the helper, the
+  “Dialing…” decoration and a touch listener that wins over a surrounding ViewPager, replacing whatever an
+  earlier call attached (tag `R.id.swipe_to_call_tag`); `removeSwipeToCall()` detaches it.
+- `extensions/CallFormats.kt` — `toJapaneseClockString`, `toJapaneseDurationString`,
+  `toImperialDateString`, `toKanjiNumeral`, and `formatCallTime(context, format)` /
+  `formatCallDuration(context, format)` over the ordinals `CALL_TIME_JAPANESE/SYSTEM/24H/12H` and
+  `CALL_DURATION_JAPANESE/DIGITAL`. **Those ordinals are stored in denwa's settings and served to
+  renrakusaki by denwa's call-log style provider — never reorder or re-mean them.**
+
+Consumers: denwa from `6.1.6-sk13`; renrakusaki once its chat moves its pin. **Re-apply when rebasing.**

@@ -9,4 +9,5 @@
     <item name="properties_sha256" type="id" />
     <item name="tag_base_padding" type="id" />
     <item name="tag_base_margin" type="id" />
+    <item name="swipe_to_call_tag" type="id" />
 </resources>
