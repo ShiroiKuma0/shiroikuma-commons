@@ -28,6 +28,13 @@ import org.fossify.commons.extensions.getColoredDrawableWithColor
  * shiroikuma (sk13): shared by our Phone and Contacts forks (denwa, renrakusaki), which used to carry
  * one copy each. [simTextColor] paints the 1/2 glyph and the "Dialing…" text; [dialingText] is that
  * text, from the app's own strings. Attach it with [org.fossify.commons.extensions.setupSwipeToCall].
+ *
+ * shiroikuma (sk14): each side can be given another route than its SIM. [sim1Color] is simply the band
+ * of the LEFT swipe and [sim2Color] that of the RIGHT one; [leftEnabled] / [rightEnabled] switch a side
+ * off, [leftTextColor] / [rightTextColor] recolour its marking, [leftIconRes] / [rightIconRes] swap the
+ * 1/2 glyph, and [leftLabel] / [rightLabel] replace the glyph with a short text (臨, 臨1 …). The defaults
+ * are sk13's behaviour exactly, so a caller that passes none of them is unchanged. [onSwipe]'s flag still
+ * means "the row was swiped left".
  */
 @Suppress("TooManyFunctions") // ItemTouchHelper overrides plus the slide-out it drives itself
 class SwipeToCallCallback(
@@ -38,7 +45,18 @@ class SwipeToCallCallback(
     private val onSwipe: (position: Int, useSim1: Boolean) -> Unit,
     simTextColor: Int,
     private val dialingText: String,
-) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+    private val leftEnabled: Boolean = true,
+    private val rightEnabled: Boolean = true,
+    private val leftTextColor: Int = simTextColor,
+    private val rightTextColor: Int = simTextColor,
+    leftIconRes: Int = R.drawable.ic_phone_one_vector,
+    rightIconRes: Int = R.drawable.ic_phone_two_vector,
+    private val leftLabel: String? = null,
+    private val rightLabel: String? = null,
+) : ItemTouchHelper.SimpleCallback(
+    0,
+    (if (leftEnabled) ItemTouchHelper.LEFT else 0) or (if (rightEnabled) ItemTouchHelper.RIGHT else 0),
+) {
 
     // Set by setupSwipeToCall: detaches + re-attaches the ItemTouchHelper, forcing it to clearView()
     // its pending recover animations (see onSwiped for why that can't be left to the normal cleanup).
@@ -64,9 +82,9 @@ class SwipeToCallCallback(
 
     // The 1/2 glyph is the same marking as the number on a SIM badge, so it wears the SIM text colour
     private val sim1Icon = activity.resources
-        .getColoredDrawableWithColor(R.drawable.ic_phone_one_vector, simTextColor)
+        .getColoredDrawableWithColor(leftIconRes, leftTextColor)
     private val sim2Icon = activity.resources
-        .getColoredDrawableWithColor(R.drawable.ic_phone_two_vector, simTextColor)
+        .getColoredDrawableWithColor(rightIconRes, rightTextColor)
 
     // After the slide-out the row stays filled with its SIM colour and reads "Dialing…" until the call
     // screen is in front — placing a call takes the system a second or two, and a row that snapped
@@ -77,6 +95,14 @@ class SwipeToCallCallback(
         textAlign = Paint.Align.CENTER
         textSize = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_SP, DIALING_TEXT_SP, activity.resources.displayMetrics,
+        )
+    }
+
+    // A side's text marking (sk14), drawn where the 1/2 glyph would be.
+    private val labelPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
+        typeface = Typeface.DEFAULT_BOLD
+        textSize = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_SP, LABEL_TEXT_SP, activity.resources.displayMetrics,
         )
     }
     private var dialingPosition = RecyclerView.NO_POSITION
@@ -93,6 +119,7 @@ class SwipeToCallCallback(
             val itemView = parent.findViewHolderForAdapterPosition(dialingPosition)?.itemView ?: return
             val width = itemView.width.toFloat()
             drawReveal(c, itemView, if (dialingSim1) -width else width)
+            dialingPaint.color = if (dialingSim1) leftTextColor else rightTextColor
             val baseline = (itemView.top + itemView.bottom) / 2f - (dialingPaint.ascent() + dialingPaint.descent()) / 2f
             c.drawText(dialingText, (itemView.left + itemView.right) / 2f, baseline, dialingPaint)
         }
@@ -281,6 +308,25 @@ class SwipeToCallCallback(
         }
         background.draw(c)
 
+        val label = if (swipingLeft) leftLabel else rightLabel
+        if (label != null) {
+            // clipped to the band, so the text appears with it instead of over the row
+            labelPaint.color = if (swipingLeft) leftTextColor else rightTextColor
+            val margin = (itemView.height - icon.intrinsicHeight) / 2f
+            val baseline = (itemView.top + itemView.bottom) / 2f - (labelPaint.ascent() + labelPaint.descent()) / 2f
+            c.save()
+            c.clipRect(background.bounds)
+            if (swipingLeft) {
+                labelPaint.textAlign = Paint.Align.RIGHT
+                c.drawText(label, itemView.right - margin, baseline, labelPaint)
+            } else {
+                labelPaint.textAlign = Paint.Align.LEFT
+                c.drawText(label, itemView.left + margin, baseline, labelPaint)
+            }
+            c.restore()
+            return
+        }
+
         val iconSize = icon.intrinsicHeight
         val iconWidth = icon.intrinsicWidth
         val margin = (itemView.height - iconSize) / 2
@@ -305,6 +351,7 @@ class SwipeToCallCallback(
         const val SPEED_SAMPLE_MAX_MS = 100L
         const val SPEED_SMOOTHING = 0.5f
         const val DIALING_TEXT_SP = 18f
+        const val LABEL_TEXT_SP = 22f
         const val DIALING_TIMEOUT_MS = 15_000L
     }
 }
