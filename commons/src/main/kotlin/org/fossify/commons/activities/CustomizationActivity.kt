@@ -67,6 +67,9 @@ import org.fossify.commons.models.isGlobalThemingEnabled
 import java.io.File
 import kotlin.math.abs
 
+private const val FAMILY_ROW_PADDING_DP = 2
+private const val FAMILY_HEADING_TOP_DP = 12
+
 class CustomizationActivity : BaseSimpleActivity() {
     companion object {
         private const val THEME_LIGHT = 0
@@ -155,6 +158,44 @@ class CustomizationActivity : BaseSimpleActivity() {
         )
         showOrHideThankYouFeatures()
         updateApplyToAllColors()
+        tightenRowsForFamilyLook()
+    }
+
+    // Fork (sk16): under the family's look (the sk12 opt-in) every row is only as tall as its content —
+    // 2 dp above and below, no minimum height — headings are bold and underlined, and nothing is dimmed
+    // by alpha (the stock value style fades its text, which reads as grey on a black ground).
+    private fun tightenRowsForFamilyLook() {
+        if (!baseConfig.pillDialogButtons) return
+        val density = resources.displayMetrics.density
+        val rowPadding = (FAMILY_ROW_PADDING_DP * density).toInt()
+        val holder = binding.customizationHolder
+        for (i in 0 until holder.childCount) {
+            val child = holder.getChildAt(i)
+            when {
+                child is android.widget.TextView -> {
+                    child.setTypeface(child.typeface, Typeface.BOLD)
+                    child.paintFlags = child.paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
+                    child.setPadding(
+                        child.paddingLeft, (FAMILY_HEADING_TOP_DP * density).toInt(), child.paddingRight, rowPadding
+                    )
+                }
+
+                child is android.view.ViewGroup && child.id != android.view.View.NO_ID -> {
+                    child.setPadding(child.paddingLeft, rowPadding, child.paddingRight, rowPadding)
+                    child.minimumHeight = 0
+                    undim(child)
+                }
+            }
+        }
+    }
+
+    private fun undim(group: android.view.ViewGroup) {
+        for (i in 0 until group.childCount) {
+            when (val child = group.getChildAt(i)) {
+                is android.widget.TextView -> child.alpha = 1f
+                is android.view.ViewGroup -> undim(child)
+            }
+        }
     }
 
     private fun refreshMenuItems() {
