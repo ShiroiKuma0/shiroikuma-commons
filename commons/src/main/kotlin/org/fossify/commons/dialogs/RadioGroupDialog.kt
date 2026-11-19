@@ -1,5 +1,6 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import android.app.Activity
 import android.view.View
 import android.view.ViewGroup
@@ -154,7 +155,7 @@ fun RadioGroupAlertDialog(
                     )
                 }
                 if (shouldShowOkButton) {
-                    TextButton(
+                    DialogButton(
                         onClick = {
                             callback(getSelectedValue(items, selected))
                             alertDialogState.hide()

@@ -1,5 +1,6 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import android.app.Activity
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.material3.AlertDialog
@@ -57,7 +58,7 @@ fun PermissionRequiredAlertDialog(
         shape = dialogShape,
         tonalElevation = dialogElevation,
         dismissButton = {
-            TextButton(onClick = {
+            DialogButton(onClick = {
                 alertDialogState.hide()
                 negativeActionCallback?.invoke()
             }) {
@@ -65,7 +66,7 @@ fun PermissionRequiredAlertDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = {
+            DialogButton(main = true, onClick = {
                 alertDialogState.hide()
                 positiveActionCallback()
             }) {

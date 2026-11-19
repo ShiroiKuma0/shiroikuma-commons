@@ -1,5 +1,6 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -110,13 +111,13 @@ fun ChangeViewTypeAlertDialog(
                         .fillMaxWidth()
                         .padding(end = SimpleTheme.dimens.padding.extraLarge)
                 ) {
-                    TextButton(onClick = {
+                    DialogButton(onClick = {
                         alertDialogState.hide()
                     }) {
                         Text(text = stringResource(id = R.string.cancel))
                     }
 
-                    TextButton(onClick = {
+                    DialogButton(onClick = {
                         alertDialogState.hide()
                         onTypeChosen(getSelectedValue(items, selected))
                     }) {

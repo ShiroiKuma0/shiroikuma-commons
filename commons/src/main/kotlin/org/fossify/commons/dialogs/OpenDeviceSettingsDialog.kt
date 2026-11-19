@@ -1,5 +1,6 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -58,12 +59,12 @@ fun OpenDeviceSettingsAlertDialog(
             )
         },
         dismissButton = {
-            TextButton(onClick = alertDialogState::hide) {
+            DialogButton(onClick = alertDialogState::hide) {
                 Text(text = stringResource(id = R.string.close))
             }
         },
         confirmButton = {
-            TextButton(onClick = {
+            DialogButton(main = true, onClick = {
                 context.openDeviceSettings()
                 alertDialogState.hide()
             }) {

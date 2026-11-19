@@ -1,5 +1,6 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
@@ -97,7 +98,7 @@ fun EnterPasswordAlertDialog(
         tonalElevation = dialogElevation,
         onDismissRequest = alertDialogState::hide andThen cancelCallback,
         confirmButton = {
-            TextButton(
+            DialogButton(main = true, 
                 onClick = {
                     if (password.isEmpty()) {
                         localContext.toast(R.string.empty_password)
@@ -111,7 +112,7 @@ fun EnterPasswordAlertDialog(
             }
         },
         dismissButton = {
-            TextButton(
+            DialogButton(
                 onClick = alertDialogState::hide
             ) {
                 Text(text = stringResource(id = R.string.cancel))

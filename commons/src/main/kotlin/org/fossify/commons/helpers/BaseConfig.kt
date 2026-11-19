@@ -645,6 +645,10 @@ open class BaseConfig(val context: Context) {
         get() = prefs.getBoolean(PILL_DIALOG_BUTTONS, false)
         set(pillDialogButtons) = prefs.edit().putBoolean(PILL_DIALOG_BUTTONS, pillDialogButtons).apply()
 
+    var dialogWarningColor: Int
+        get() = prefs.getInt(DIALOG_WARNING_COLOR, 0xFFFF0000.toInt())
+        set(dialogWarningColor) = prefs.edit().putInt(DIALOG_WARNING_COLOR, dialogWarningColor).apply()
+
     protected fun <T> KProperty0<T>.asFlow(emitOnCollect: Boolean = false): Flow<T?> =
         prefs.run { sharedPreferencesCallback(sendOnCollect = emitOnCollect) { this@asFlow.get() } }
 

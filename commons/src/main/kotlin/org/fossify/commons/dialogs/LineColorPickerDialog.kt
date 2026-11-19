@@ -1,5 +1,6 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import android.content.Context
 import android.graphics.Color
 import android.view.WindowManager
@@ -260,13 +261,13 @@ fun LineColorPickerAlertDialog(
                     Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(onClick = {
+                    DialogButton(onClick = {
                         alertDialogState.hide()
                         onButtonPressed(false, 0)
                     }) {
                         Text(text = stringResource(id = R.string.cancel))
                     }
-                    TextButton(onClick = {
+                    DialogButton(onClick = {
                         if (dialogLineColorPickerBinding != null) {
                             val targetView =
                                 if (isPrimaryColorPicker) dialogLineColorPickerBinding!!.secondaryLineColorPicker else dialogLineColorPickerBinding!!.primaryLineColorPicker

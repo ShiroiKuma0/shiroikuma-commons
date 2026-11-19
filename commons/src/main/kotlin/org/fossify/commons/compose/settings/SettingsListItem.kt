@@ -1,5 +1,7 @@
 package org.fossify.commons.compose.settings
 
+import org.fossify.commons.compose.components.PillButton
+import org.fossify.commons.compose.components.familyLook
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -37,9 +39,16 @@ fun SettingsListItem(
     click: (() -> Unit)? = null,
     tint: Color? = null
 ) {
+    // Fork (sk15): under the family's look a row that opens something is a pill around its label, with
+    // a ›, and only the pill takes the tap — a plain line of text gives no clue that it can be pressed.
+    val asPill = click != null && familyLook()
     ListItem(
         headlineContent = {
-            Text(
+            if (asPill) {
+                PillButton(onClick = { click?.invoke() }, modifier = modifier) {
+                    Text(text = "$text  ›", fontSize = fontSize, maxLines = maxLines, overflow = overflow)
+                }
+            } else Text(
                 text = text,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -89,7 +98,7 @@ fun SettingsListItem(
         },
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = click != null) { click?.invoke() }
+            .clickable(enabled = click != null && !asPill) { click?.invoke() }
     )
 }
 

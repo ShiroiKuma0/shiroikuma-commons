@@ -1,5 +1,6 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import android.app.Activity
 import android.content.Intent
 import android.text.Html
@@ -86,14 +87,14 @@ fun DonateAlertDialog(
         shape = dialogShape,
         tonalElevation = dialogElevation,
         dismissButton = {
-            TextButton(onClick = {
+            DialogButton(onClick = {
                 alertDialogState.hide()
             }) {
                 Text(text = stringResource(id = R.string.later))
             }
         },
         confirmButton = {
-            TextButton(onClick = {
+            DialogButton(main = true, onClick = {
                 donateIntent()
                 alertDialogState.hide()
             }) {

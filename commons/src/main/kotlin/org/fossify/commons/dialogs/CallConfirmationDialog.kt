@@ -1,5 +1,6 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import android.view.animation.AnimationUtils
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
@@ -76,7 +77,7 @@ fun CallConfirmationAlertDialog(
         shape = dialogShape,
         tonalElevation = dialogElevation,
         confirmButton = {
-            TextButton(onClick = {
+            DialogButton(main = true, onClick = {
                 alertDialogState.hide()
                 callback()
             }) {

@@ -1,5 +1,7 @@
 package org.fossify.commons.compose.screens
 
+import org.fossify.commons.compose.components.familyLook
+import org.fossify.commons.compose.components.PillButton
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.FastOutLinearInEasing
@@ -607,7 +609,12 @@ private fun LazyListScope.emptyBlockedNumbers(
                 .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            OutlinedButton(onClick = addABlockedNumber) {
+            // Fork (sk15): the screen's one action, as the family's main pill
+            if (familyLook()) PillButton(onClick = addABlockedNumber, main = true) {
+                Text(
+                    text = stringResource(id = R.string.add_a_blocked_number),
+                )
+            } else OutlinedButton(onClick = addABlockedNumber) {
                 Text(
                     text = stringResource(id = R.string.add_a_blocked_number),
                 )
@@ -637,7 +644,12 @@ private fun LazyListScope.noPermissionToBlock(
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            Button(onClick = setAsDefault) {
+            // Fork (sk15): never a filled button under the family's look
+            if (familyLook()) PillButton(onClick = setAsDefault, main = true) {
+                Text(
+                    text = stringResource(id = R.string.set_as_default),
+                )
+            } else Button(onClick = setAsDefault) {
                 Text(
                     text = stringResource(id = R.string.set_as_default),
                 )

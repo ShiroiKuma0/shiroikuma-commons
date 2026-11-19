@@ -1,5 +1,6 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.layout.Column
@@ -124,7 +125,7 @@ fun CreateNewFolderAlertDialog(
         tonalElevation = dialogElevation,
         onDismissRequest = alertDialogState::hide,
         confirmButton = {
-            TextButton(
+            DialogButton(main = true, 
                 onClick = {
                     alertDialogState.hide()
                     //add callback
@@ -135,7 +136,7 @@ fun CreateNewFolderAlertDialog(
                             val file = File(path, name)
                             if (file.exists()) {
                                 context.toast(R.string.name_taken)
-                                return@TextButton
+                                return@DialogButton
                             }
 
                             callback("$path/$name")
@@ -149,7 +150,7 @@ fun CreateNewFolderAlertDialog(
             }
         },
         dismissButton = {
-            TextButton(
+            DialogButton(
                 onClick = alertDialogState::hide
             ) {
                 Text(text = stringResource(id = R.string.cancel))

@@ -1,5 +1,6 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import android.app.Activity
 import android.text.Html
 import android.text.Spanned
@@ -191,7 +192,7 @@ fun WritePermissionAlertDialog(
                     Spacer(Modifier.padding(vertical = SimpleTheme.dimens.padding.extraLarge))
                 }
 
-                TextButton(
+                DialogButton(
                     onClick = alertDialogState::hide andThen callback,
                     modifier = Modifier
                         .padding(
