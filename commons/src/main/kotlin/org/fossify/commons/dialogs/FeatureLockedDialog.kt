@@ -1,5 +1,6 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import android.app.Activity
 import android.text.Html
 import android.text.method.LinkMovementMethod
@@ -78,7 +79,7 @@ fun FeatureLockedAlertDialog(
         shape = dialogShape,
         tonalElevation = dialogElevation,
         dismissButton = {
-            TextButton(onClick = {
+            DialogButton(onClick = {
                 cancelCallback()
                 alertDialogState.hide()
             }) {
@@ -86,7 +87,7 @@ fun FeatureLockedAlertDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = {
+            DialogButton(main = true, onClick = {
                 donateIntent()
             }) {
                 Text(text = stringResource(id = R.string.purchase))

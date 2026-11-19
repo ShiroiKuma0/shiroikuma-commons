@@ -1,5 +1,6 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import android.app.Activity
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.layout.Arrangement
@@ -90,19 +91,19 @@ fun UpgradeToProAlertDialog(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End
             ) {
-                TextButton(
+                DialogButton(
                     onClick = onMoreInfoClick, // do not dismiss the dialog on pressing More Info
                     modifier = Modifier.weight(0.2f)
                 ) {
                     Text(text = stringResource(id = R.string.more_info))
                 }
-                TextButton(
+                DialogButton(
                     onClick = alertDialogState::hide,
                     modifier = Modifier.padding(horizontal = SimpleTheme.dimens.padding.medium)
                 ) {
                     Text(text = stringResource(id = R.string.later))
                 }
-                TextButton(
+                DialogButton(
                     onClick = onUpgradeClick andThen alertDialogState::hide,
                 ) {
                     Text(text = stringResource(id = R.string.upgrade))

@@ -1,5 +1,6 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import android.app.Activity
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
@@ -52,14 +53,14 @@ fun FolderLockingNoticeAlertDialog(
         tonalElevation = dialogElevation,
         onDismissRequest = alertDialogState::hide,
         confirmButton = {
-            TextButton(
+            DialogButton(main = true, 
                 onClick = alertDialogState::hide andThen callback
             ) {
                 Text(text = stringResource(id = R.string.ok))
             }
         },
         dismissButton = {
-            TextButton(
+            DialogButton(
                 onClick = alertDialogState::hide
             ) {
                 Text(text = stringResource(id = R.string.cancel))

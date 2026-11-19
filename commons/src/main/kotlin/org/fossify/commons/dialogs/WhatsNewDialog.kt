@@ -1,5 +1,6 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import android.app.Activity
 import android.view.LayoutInflater
 import androidx.compose.foundation.layout.Column
@@ -62,7 +63,7 @@ fun WhatsNewAlertDialog(
     AlertDialog(
         onDismissRequest = {},
         confirmButton = {
-            TextButton(onClick = {
+            DialogButton(main = true, onClick = {
                 alertDialogState.hide()
             }) {
                 Text(text = stringResource(id = R.string.ok))

@@ -1539,6 +1539,9 @@ fun Activity.setupDialogStuff(
     titleId: Int = 0,
     titleText: String = "",
     cancelOnTouchOutside: Boolean = true,
+    // Fork (sk15): which button (AlertDialog.BUTTON_*) deletes or otherwise cannot be undone — under the
+    // pill look it lends BaseConfig.dialogWarningColor to its frame and text. 0 = none.
+    destructiveButton: Int = 0,
     callback: ((alertDialog: AlertDialog) -> Unit)? = null
 ) {
     if (isDestroyed || isFinishing) {
@@ -1624,7 +1627,11 @@ fun Activity.setupDialogStuff(
                 if (pillButtons) {
                     getButton(which)?.apply {
                         val density = resources.displayMetrics.density
-                        val accent = if (buttonAccent != 0) buttonAccent else primaryColor
+                        val accent = when {
+                            which == destructiveButton -> baseConfig.dialogWarningColor
+                            buttonAccent != 0 -> buttonAccent
+                            else -> primaryColor
+                        }
                         val main = which == AlertDialog.BUTTON_POSITIVE
                         setTextColor(accent)
                         applyFontToTextView(this)

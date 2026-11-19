@@ -1,5 +1,6 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import android.app.Activity
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -83,7 +84,7 @@ fun ConfirmationAdvancedAlertDialog(
         tonalElevation = dialogElevation,
         dismissButton = {
             if (negative != null) {
-                TextButton(onClick = {
+                DialogButton(onClick = {
                     alertDialogState.hide()
                     callback(false)
                 }) {
@@ -93,7 +94,7 @@ fun ConfirmationAdvancedAlertDialog(
         },
         confirmButton = {
             if (positive != null) {
-                TextButton(onClick = {
+                DialogButton(main = true, onClick = {
                     alertDialogState.hide()
                     callback(true)
                 }) {

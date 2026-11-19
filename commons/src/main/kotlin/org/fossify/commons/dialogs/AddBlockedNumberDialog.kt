@@ -1,5 +1,6 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
@@ -45,7 +46,7 @@ fun AddOrEditBlockedNumberAlertDialog(
             .dialogBorder(),
         onDismissRequest = alertDialogState::hide,
         confirmButton = {
-            TextButton(onClick = {
+            DialogButton(main = true, onClick = {
                 var newBlockedNumber = textFieldValue.text
                 if (blockedNumber != null && newBlockedNumber != blockedNumber.number) {
                     deleteBlockedNumber(blockedNumber.number)
@@ -63,7 +64,7 @@ fun AddOrEditBlockedNumberAlertDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = {
+            DialogButton(onClick = {
                 alertDialogState.hide()
             }) {
                 Text(text = stringResource(id = R.string.cancel))

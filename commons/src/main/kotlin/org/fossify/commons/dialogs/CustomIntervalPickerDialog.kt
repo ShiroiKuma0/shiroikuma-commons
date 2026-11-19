@@ -1,5 +1,6 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
@@ -189,11 +190,11 @@ fun CustomIntervalPickerAlertDialog(
                         )
                         .align(Alignment.BottomStart)
                 ) {
-                    TextButton(onClick = alertDialogState::hide) {
+                    DialogButton(onClick = alertDialogState::hide) {
                         Text(text = stringResource(id = R.string.cancel))
                     }
 
-                    TextButton(onClick = {
+                    DialogButton(onClick = {
                         val multiplier = getMultiplier(context, selected)
                         val minutes = Integer.valueOf(textFieldValue.text.ifEmpty { "0" })
                         callback(minutes * multiplier)

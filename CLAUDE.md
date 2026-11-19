@@ -124,7 +124,7 @@ JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :commons:publishToMavenLo
 (`sdk.dir=/home/shiroikuma/android-sdk`). The consuming apps pin `commons = "6.1.6-sk5"`.
 
 The `-skN` suffix is **our** patch revision (independent of the upstream Commons version): bump it
-(`sk1` → `sk2` → …) whenever you change the patch, so consumers opt in by bumping their pin. Current: `sk13`
+(`sk1` → `sk2` → …) whenever you change the patch, so consumers opt in by bumping their pin. Current: `sk15`
 (`sk1` = anti-tamper only; `sk2` added the fork-package fixes; `sk3` the dialog accent border + boxed
 buttons; `sk4`–`sk5` the black/yellow contextual action bar + menus above; `sk6` the theme-styled toasts;
 `sk7` the `ContactsHelper` raw-contact insert falling back to the local account when a stale source has
@@ -190,6 +190,23 @@ the dialog buttons when `BaseConfig.pillDialogButtons` is on (opt-in, default of
 over the boxed `styledDialogButtons`): the positive button is the main pill, the others thin. Under a
 Material theme the buttons are `MaterialButton`s, which ignore a replacement background unless their
 tint, insets, corner and elevation are cleared first — the code does that. **Re-apply when rebasing.**
+
+## The family's look on commons' own screens, and destructive buttons (`sk15`)
+
+Everything here hangs on the same opt-in as `sk12`, `BaseConfig.pillDialogButtons`; with it off nothing
+changes.
+
+- **Destructive dialog buttons.** `setupDialogStuff(…, destructiveButton = AlertDialog.BUTTON_*)` draws
+  that button's frame and text in `BaseConfig.dialogWarningColor` (default pure red; the app syncs it to
+  its own warning role). `ConfirmationDialog(…, destructive = true)` passes the positive button.
+- **Compose** (`compose/components/FamilyPills.kt`): `PillButton` (outlined, never filled; 3 dp + bold
+  when main), `DialogButton` (a pill under the look, the stock `TextButton` otherwise — every Compose
+  dialog's buttons go through it, the confirm one as main), `OutlinedPillSwitch` (the outlined switch;
+  `SettingsSwitchComponent` and `SettingsCheckBoxComponent` use it), and `familyLook()`.
+- **Rows that open something** — `SettingsListItem(text: String, click = …)`, which is every row of the
+  About screen — are a pill around the label with a ›. Manage blocked numbers' two buttons are main pills.
+
+Not done: `CustomizationActivity` (Views) keeps its stock row padding. **Re-apply when rebasing.**
 
 ## Swipe to call and the call-log formats, shared by denwa and renrakusaki (`sk13`)
 

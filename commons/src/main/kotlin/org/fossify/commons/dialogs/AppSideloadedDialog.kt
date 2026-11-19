@@ -1,5 +1,6 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import android.app.Activity
 import android.text.Html
 import android.text.method.LinkMovementMethod
@@ -73,7 +74,7 @@ fun AppSideLoadedAlertDialog(
             .dialogBorder(),
         onDismissRequest = alertDialogState::hide,
         confirmButton = {
-            TextButton(onClick = {
+            DialogButton(main = true, onClick = {
                 alertDialogState.hide()
                 onDownloadClick(url)
             }) {
@@ -81,7 +82,7 @@ fun AppSideLoadedAlertDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = {
+            DialogButton(onClick = {
                 alertDialogState.hide()
                 onCancelClick()
             }) {

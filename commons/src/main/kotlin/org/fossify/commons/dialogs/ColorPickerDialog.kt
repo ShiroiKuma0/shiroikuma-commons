@@ -2,6 +2,7 @@
 
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -213,21 +214,21 @@ fun ColorPickerAlertDialog(
                     Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(onClick = {
+                    DialogButton(onClick = {
                         alertDialogState.hide()
                         onButtonPressed(false, 0)
                     }) {
                         Text(text = stringResource(id = R.string.cancel))
                     }
                     if (addDefaultColorButton) {
-                        TextButton(onClick = {
+                        DialogButton(onClick = {
                             alertDialogState.hide()
                             onButtonPressed(true, 0)
                         }) {
                             Text(text = stringResource(id = R.string.default_color))
                         }
                     }
-                    TextButton(onClick = {
+                    DialogButton(onClick = {
                         alertDialogState.hide()
                         val hexValue = dialogColorPickerBinding?.colorPickerNewHex?.value
                         val newColor = if (hexValue?.length == 6) {

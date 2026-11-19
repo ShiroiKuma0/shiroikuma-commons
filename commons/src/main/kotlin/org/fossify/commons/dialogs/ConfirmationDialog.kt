@@ -1,5 +1,6 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import android.app.Activity
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,6 +37,8 @@ class ConfirmationDialog(
     negative: Int = R.string.no,
     val cancelOnTouchOutside: Boolean = true,
     dialogTitle: String = "",
+    // Fork (sk15): the positive button deletes — drawn in the warning colour under the pill look.
+    destructive: Boolean = false,
     val callback: () -> Unit
 ) {
     private var dialog: AlertDialog? = null
@@ -52,7 +55,10 @@ class ConfirmationDialog(
         }
 
         builder.apply {
-            activity.setupDialogStuff(view.root, this, titleText = dialogTitle, cancelOnTouchOutside = cancelOnTouchOutside) { alertDialog ->
+            activity.setupDialogStuff(
+                view.root, this, titleText = dialogTitle, cancelOnTouchOutside = cancelOnTouchOutside,
+                destructiveButton = if (destructive) AlertDialog.BUTTON_POSITIVE else 0,
+            ) { alertDialog ->
                 dialog = alertDialog
             }
         }
@@ -90,7 +96,7 @@ fun ConfirmationAlertDialog(
         tonalElevation = dialogElevation,
         dismissButton = {
             if (negative != null) {
-                TextButton(onClick = {
+                DialogButton(onClick = {
                     alertDialogState.hide()
                     callback()
                 }) {
@@ -100,7 +106,7 @@ fun ConfirmationAlertDialog(
         },
         confirmButton = {
             if (positive != null) {
-                TextButton(onClick = {
+                DialogButton(main = true, onClick = {
                     alertDialogState.hide()
                     callback()
                 }) {

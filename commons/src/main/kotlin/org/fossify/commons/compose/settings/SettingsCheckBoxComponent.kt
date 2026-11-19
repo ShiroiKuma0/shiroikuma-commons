@@ -1,5 +1,7 @@
 package org.fossify.commons.compose.settings
 
+import org.fossify.commons.compose.components.familyLook
+import org.fossify.commons.compose.components.OutlinedPillSwitch
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
@@ -54,7 +56,10 @@ fun SettingsCheckBoxComponent(
             }
         },
         trailingContent = {
-            CompositionLocalProvider(LocalRippleConfiguration provides null) {
+            // Fork (sk15): a toggle is the outlined switch under the family's look, never a filled tick box
+            if (familyLook()) {
+                OutlinedPillSwitch(checked = initialValue, onCheckedChange = { onChange?.invoke(it) }, enabled = isPreferenceEnabled)
+            } else CompositionLocalProvider(LocalRippleConfiguration provides null) {
                 Checkbox(
                     checked = initialValue,
                     onCheckedChange = { onChange?.invoke(it) },

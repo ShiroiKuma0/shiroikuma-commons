@@ -1,5 +1,6 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.compose.components.DialogButton
 import android.app.Activity
 import android.text.format.DateFormat
 import androidx.compose.foundation.LocalIndication
@@ -171,13 +172,13 @@ fun ChangeDateTimeFormatAlertDialog(
                         )
                         .align(Alignment.BottomStart)
                 ) {
-                    TextButton(onClick = {
+                    DialogButton(onClick = {
                         alertDialogState.hide()
                     }) {
                         Text(text = stringResource(id = R.string.cancel))
                     }
 
-                    TextButton(onClick = {
+                    DialogButton(onClick = {
                         alertDialogState.hide()
                         callback(selections.filterValues { it == selected }.keys.first(), is24HoursSelected)
                     }) {
