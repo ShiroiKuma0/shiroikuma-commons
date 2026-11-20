@@ -110,6 +110,7 @@ const val STYLED_DIALOG_BUTTONS = "styled_dialog_buttons"
 const val PILL_DIALOG_BUTTONS = "pill_dialog_buttons"
 // Fork (sk15): the colour a destructive dialog button is drawn in (frame and text) under the pill look.
 const val DIALOG_WARNING_COLOR = "dialog_warning_color"
+const val SWITCH_OFF_COLOR = "switch_off_color"
 const val APP_ICON_COLOR = "app_icon_color"
 const val LAST_HANDLED_SHORTCUT_COLOR = "last_handled_shortcut_color"
 const val LAST_ICON_COLOR = "last_icon_color"

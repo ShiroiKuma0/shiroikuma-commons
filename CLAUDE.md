@@ -124,7 +124,7 @@ JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :commons:publishToMavenLo
 (`sdk.dir=/home/shiroikuma/android-sdk`). The consuming apps pin `commons = "6.1.6-sk5"`.
 
 The `-skN` suffix is **our** patch revision (independent of the upstream Commons version): bump it
-(`sk1` → `sk2` → …) whenever you change the patch, so consumers opt in by bumping their pin. Current: `sk16`
+(`sk1` → `sk2` → …) whenever you change the patch, so consumers opt in by bumping their pin. Current: `sk17`
 (`sk1` = anti-tamper only; `sk2` added the fork-package fixes; `sk3` the dialog accent border + boxed
 buttons; `sk4`–`sk5` the black/yellow contextual action bar + menus above; `sk6` the theme-styled toasts;
 `sk7` the `ContactsHelper` raw-contact insert falling back to the local account when a stale source has
@@ -228,3 +228,26 @@ Both of our telephony forks used to carry a hand-kept copy of these; they now li
   renrakusaki by denwa's call-log style provider — never reorder or re-mean them.**
 
 Consumers: denwa from `6.1.6-sk13`; renrakusaki once its chat moves its pin. **Re-apply when rebasing.**
+
+### Tiles swipe inside their own cell (`sk17`)
+
+ItemTouchHelper measures every swipe against the whole list: the threshold, and a committed item's flight
+to the list's edge. In a grid that sent a cell across its neighbours. `SwipeToCallCallback` now treats an
+item narrower than 75 % of the list as a **tile**: it commits after 40 % of its own width (or a flick),
+travels one width at most, is clipped to its cell while it moves (`View.clipBounds`, cleared in
+`clearView` and `onSwiped`), keeps its mark 10 dp from the cell's edge and shrinks “Dialing…” to fit. A
+full-width row behaves exactly as before, so denwa is unchanged. Consumer: renrakusaki's Favorites grid.
+
+## The outlined switch and floating button under the family's look (`sk17`)
+
+Under `BaseConfig.pillDialogButtons` (nothing changes with it off):
+
+- `MyMaterialSwitch` is the family's switch — a 2 dp round outline with a solid dot (46 % of the height),
+  right and in the accent when on, left and in the off colour when not; never filled, no checkmark icon.
+  Its parts are `views/FamilySwitchDrawable`, tinted by the switch's own track and thumb tint lists. The off
+  colour is `BaseConfig.switchOffColor`, or, at 0, 55 % of the way from the background to the accent; an
+  app with its own role for it writes that role there.
+- `MyFloatingActionButton` is never a filled slab: the background colour inside, the accent for its icon
+  and for a 3 dp frame in the button's own shape (a `MaterialShapeDrawable` as the foreground).
+
+**Re-apply when rebasing.**

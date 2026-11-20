@@ -645,6 +645,11 @@ open class BaseConfig(val context: Context) {
         get() = prefs.getBoolean(PILL_DIALOG_BUTTONS, false)
         set(pillDialogButtons) = prefs.edit().putBoolean(PILL_DIALOG_BUTTONS, pillDialogButtons).apply()
 
+    // The family's outlined switch (sk17), off: 0 = derived, 55 % of the way from the background to the accent.
+    var switchOffColor: Int
+        get() = prefs.getInt(SWITCH_OFF_COLOR, 0)
+        set(switchOffColor) = prefs.edit().putInt(SWITCH_OFF_COLOR, switchOffColor).apply()
+
     var dialogWarningColor: Int
         get() = prefs.getInt(DIALOG_WARNING_COLOR, 0xFFFF0000.toInt())
         set(dialogWarningColor) = prefs.edit().putInt(DIALOG_WARNING_COLOR, dialogWarningColor).apply()

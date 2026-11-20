@@ -2,6 +2,7 @@ package org.fossify.commons.helpers
 
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.text.TextPaint
@@ -35,6 +36,12 @@ import org.fossify.commons.extensions.getColoredDrawableWithColor
  * 1/2 glyph, and [leftLabel] / [rightLabel] replace the glyph with a short text (臨, 臨1 …). The defaults
  * are sk13's behaviour exactly, so a caller that passes none of them is unchanged. [onSwipe]'s flag still
  * means "the row was swiped left".
+ *
+ * shiroikuma (sk17): a TILE — an item narrower than [TILE_MAX_SHARE] of the list, a cell of a grid — swipes
+ * inside its own cell. ItemTouchHelper measures every swipe against the whole list (the threshold, and a
+ * committed item's flight to the list's edge), which sent a tile across its neighbours; a tile now commits
+ * after [TILE_SWIPE_THRESHOLD] of its own width, travels one width at most, is clipped to its cell while
+ * it moves, keeps its mark near the cell's edge and shrinks "Dialing…" to fit. A full-width row is unchanged.
  */
 @Suppress("TooManyFunctions") // ItemTouchHelper overrides plus the slide-out it drives itself
 class SwipeToCallCallback(
@@ -89,13 +96,15 @@ class SwipeToCallCallback(
     // After the slide-out the row stays filled with its SIM colour and reads "Dialing…" until the call
     // screen is in front — placing a call takes the system a second or two, and a row that snapped
     // back to normal in the meantime looked as if the swipe had done nothing.
+    private val density = activity.resources.displayMetrics.density
+    private val dialingTextSize = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_SP, DIALING_TEXT_SP, activity.resources.displayMetrics,
+    )
     private val dialingPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
         color = simTextColor
         typeface = Typeface.DEFAULT_BOLD
         textAlign = Paint.Align.CENTER
-        textSize = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_SP, DIALING_TEXT_SP, activity.resources.displayMetrics,
-        )
+        textSize = dialingTextSize
     }
 
     // A side's text marking (sk14), drawn where the 1/2 glyph would be.
@@ -120,6 +129,10 @@ class SwipeToCallCallback(
             val width = itemView.width.toFloat()
             drawReveal(c, itemView, if (dialingSim1) -width else width)
             dialingPaint.color = if (dialingSim1) leftTextColor else rightTextColor
+            // a tile is narrower than the text at its full size
+            dialingPaint.textSize = dialingTextSize
+            val textWidth = dialingPaint.measureText(dialingText)
+            if (textWidth > width * DIALING_FIT_SHARE) dialingPaint.textSize = dialingTextSize * width * DIALING_FIT_SHARE / textWidth
             val baseline = (itemView.top + itemView.bottom) / 2f - (dialingPaint.ascent() + dialingPaint.descent()) / 2f
             c.drawText(dialingText, (itemView.left + itemView.right) / 2f, baseline, dialingPaint)
         }
@@ -163,8 +176,38 @@ class SwipeToCallCallback(
         target: RecyclerView.ViewHolder,
     ) = false
 
-    // a drag past this share of the row, or a flick, commits; a smaller nudge springs back
-    override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder) = SWIPE_THRESHOLD
+    // a drag past this share of the row, or a flick, commits; a smaller nudge springs back. ItemTouchHelper
+    // multiplies the share by the LIST's width, so a tile's share of its own width is scaled down to match.
+    override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
+        val itemView = viewHolder.itemView
+        val listWidth = (itemView.parent as? View)?.width ?: 0
+        return if (listWidth > 0 && isTile(itemView)) TILE_SWIPE_THRESHOLD * itemView.width / listWidth else SWIPE_THRESHOLD
+    }
+
+    // An item that takes only part of the line: a grid cell. It swipes within its own cell (sk17).
+    private fun isTile(itemView: View): Boolean {
+        val listWidth = (itemView.parent as? View)?.width ?: return false
+        return itemView.width > 0 && itemView.width < listWidth * TILE_MAX_SHARE
+    }
+
+    // Shows only the part of a moved tile that is still inside its own cell; null puts the whole tile back.
+    private fun clipTile(itemView: View, offset: Float) {
+        if (offset == 0f) {
+            itemView.clipBounds = null
+            return
+        }
+        val shift = offset.toInt()
+        itemView.clipBounds = if (shift > 0) {
+            Rect(0, 0, (itemView.width - shift).coerceAtLeast(0), itemView.height)
+        } else {
+            Rect((-shift).coerceAtMost(itemView.width), 0, itemView.width, itemView.height)
+        }
+    }
+
+    override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+        viewHolder.itemView.clipBounds = null
+        super.clearView(recyclerView, viewHolder)
+    }
 
     override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
         super.onSelectedChanged(viewHolder, actionState)
@@ -215,12 +258,18 @@ class SwipeToCallCallback(
      * speed leaves at exactly the finger's speed; clamped so a slow drag still finishes promptly.
      */
     private fun startSlide(holder: RecyclerView.ViewHolder, animateDx: Float): Long {
-        val distance = abs(animateDx)
+        val itemView = holder.itemView
+        slideHolder = holder
+        slideFrom = itemView.translationX
+        // a tile stops at the edge of its own cell instead of flying to the end of the line
+        slideTo = when {
+            !isTile(itemView) -> slideFrom + animateDx
+            animateDx < 0 -> -itemView.width.toFloat()
+            else -> itemView.width.toFloat()
+        }
+        val distance = abs(slideTo - slideFrom)
         val speed = abs(fingerSpeed)
         val duration = if (speed > 0f) (2f * distance / speed).toLong() else SLIDE_MAX_MS
-        slideHolder = holder
-        slideFrom = holder.itemView.translationX
-        slideTo = slideFrom + animateDx
         slideStart = AnimationUtils.currentAnimationTimeMillis()
         slideDuration = duration.coerceIn(SLIDE_MIN_MS, SLIDE_MAX_MS)
         return slideDuration
@@ -260,6 +309,7 @@ class SwipeToCallCallback(
         // detach/re-attach the helper to force that cleanup now, or the reused holder renders as a
         // blank row after the post-call refresh.
         viewHolder.itemView.translationX = 0f
+        viewHolder.itemView.clipBounds = null
         slideHolder = null
         resetItemTouchHelper?.invoke()
 
@@ -288,6 +338,11 @@ class SwipeToCallCallback(
         } else if (slideHolder === viewHolder) {
             offset = slideOffset()
         }
+        if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE && isTile(viewHolder.itemView)) {
+            val width = viewHolder.itemView.width.toFloat()
+            offset = offset.coerceIn(-width, width)
+            clipTile(viewHolder.itemView, offset)
+        }
         if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE && offset != 0f) {
             drawReveal(c, viewHolder.itemView, offset)
         }
@@ -312,7 +367,7 @@ class SwipeToCallCallback(
         if (label != null) {
             // clipped to the band, so the text appears with it instead of over the row
             labelPaint.color = if (swipingLeft) leftTextColor else rightTextColor
-            val margin = (itemView.height - icon.intrinsicHeight) / 2f
+            val margin = edgeMargin(itemView, icon.intrinsicHeight).toFloat()
             val baseline = (itemView.top + itemView.bottom) / 2f - (labelPaint.ascent() + labelPaint.descent()) / 2f
             c.save()
             c.clipRect(background.bounds)
@@ -329,8 +384,8 @@ class SwipeToCallCallback(
 
         val iconSize = icon.intrinsicHeight
         val iconWidth = icon.intrinsicWidth
-        val margin = (itemView.height - iconSize) / 2
-        val iconTop = itemView.top + margin
+        val margin = edgeMargin(itemView, iconSize)
+        val iconTop = itemView.top + (itemView.height - iconSize) / 2
         val iconBottom = iconTop + iconSize
         if (swipingLeft) {
             val right = itemView.right - margin
@@ -342,8 +397,20 @@ class SwipeToCallCallback(
         icon.draw(c)
     }
 
+    // How far a side's mark sits from the item's edge: as far in as it is down on a row (a square corner);
+    // a tile is taller than a row, so there it stays near the edge it belongs to.
+    private fun edgeMargin(itemView: View, markSize: Int): Int {
+        val natural = (itemView.height - markSize) / 2
+        return if (isTile(itemView)) natural.coerceAtMost((TILE_MARK_MARGIN_DP * density).toInt()) else natural
+    }
+
     private companion object {
         const val SWIPE_THRESHOLD = 0.25f
+        // tiles (sk17): what counts as one, how much of its own width commits, and where its mark sits
+        const val TILE_MAX_SHARE = 0.75f
+        const val TILE_SWIPE_THRESHOLD = 0.4f
+        const val TILE_MARK_MARGIN_DP = 10f
+        const val DIALING_FIT_SHARE = 0.9f
         // the slide-out's bounds: a fast flick still shows its sweep, a slow drag still ends promptly
         const val SLIDE_MIN_MS = 90L
         const val SLIDE_MAX_MS = 220L
