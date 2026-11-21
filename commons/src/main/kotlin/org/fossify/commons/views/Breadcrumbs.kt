@@ -1,5 +1,7 @@
 package org.fossify.commons.views
 
+import org.fossify.commons.helpers.uiColor
+import org.fossify.commons.helpers.UiRole
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.drawable.GradientDrawable
@@ -219,15 +221,14 @@ class Breadcrumbs(context: Context, attrs: AttributeSet) : HorizontalScrollView(
     }
 
     private fun setupStickyBreadcrumbBackground(view: MyTextView) {
-        val drawable = view.background.mutate() as RippleDrawable
-        (drawable.getDrawable(0) as GradientDrawable)
-            .apply {
-                setColor(context.getDialogBackgroundColor())
-                setStroke(
-                    context.resources.getDimensionPixelSize(R.dimen.one_dp),
-                    context.getProperPrimaryColor().adjustAlpha(MEDIUM_ALPHA)
-                )
-            }
+        // sk18: built here from the dialog ground and the button frame
+        val radius = context.resources.getDimension(R.dimen.material_button_corner_radius)
+        val face = GradientDrawable().apply {
+            cornerRadius = radius
+            setColor(context.uiColor(UiRole.DIALOG_GROUND))
+            setStroke(context.resources.getDimensionPixelSize(R.dimen.one_dp), context.uiColor(UiRole.BUTTON_FRAME))
+        }
+        view.background = RippleDrawable(ColorStateList.valueOf(context.uiColor(UiRole.LIST_PRESSED)), face, null)
     }
 
     fun updateColor(color: Int) {

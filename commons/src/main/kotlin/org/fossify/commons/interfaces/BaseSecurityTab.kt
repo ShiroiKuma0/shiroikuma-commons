@@ -1,5 +1,7 @@
 package org.fossify.commons.interfaces
 
+import org.fossify.commons.helpers.uiColor
+import org.fossify.commons.helpers.UiRole
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
@@ -46,7 +48,7 @@ abstract class BaseSecurityTab(context: Context, attrs: AttributeSet) : Constrai
             onLockedOutChange(lockedOut = true)
             startCountdown()
         } else {
-            updateTitle(context.getString(wrongTextRes), context.getColor(R.color.md_red))
+            updateTitle(context.getString(wrongTextRes), context.uiColor(UiRole.BUTTON_DESTRUCTIVE))
             handler.postDelayed(delayInMillis = 1000) {
                 updateTitle(context.getString(defaultTextRes), context.getProperTextColor())
             }
@@ -107,7 +109,7 @@ abstract class BaseSecurityTab(context: Context, attrs: AttributeSet) : Constrai
     private fun updateCountdownText(count: Int) {
         removeCallbacks()
         if (count > 0) {
-            updateTitle(context.getString(R.string.too_many_incorrect_attempts, count), context.getColor(R.color.md_red))
+            updateTitle(context.getString(R.string.too_many_incorrect_attempts, count), context.uiColor(UiRole.BUTTON_DESTRUCTIVE))
         } else {
             updateTitle(context.getString(defaultTextRes), context.getProperTextColor())
         }

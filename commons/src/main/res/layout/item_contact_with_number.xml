@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/tiny_margin"
-    android:background="@drawable/selector_clickable"
     android:clickable="true"
     android:focusable="true"
     android:minHeight="@dimen/two_line_list_item_min_height"

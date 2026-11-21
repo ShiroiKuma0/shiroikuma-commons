@@ -1,5 +1,7 @@
 package org.fossify.commons.views
 
+import org.fossify.commons.helpers.uiColor
+import org.fossify.commons.helpers.UiRole
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -48,6 +50,8 @@ open class MyFloatingActionButton : FloatingActionButton {
         }
     }
 
+    fun applyRoles() = setColors(context.uiColor(UiRole.TEXT), context.uiColor(UiRole.ACCENT), context.uiColor(UiRole.BACKGROUND))
+
     fun setColors(textColor: Int, accentColor: Int, backgroundColor: Int) {
         if (!isInEditMode && context.baseConfig.pillDialogButtons) {
             applyFamilyLook(accentColor, backgroundColor)
@@ -61,13 +65,15 @@ open class MyFloatingActionButton : FloatingActionButton {
     // shows through, and the accent draws its icon and a thick frame in the button's own shape (it is the
     // main action of its screen, hence the main pill's 3 dp).
     private fun applyFamilyLook(accentColor: Int, backgroundColor: Int) {
-        backgroundTintList = ColorStateList.valueOf(backgroundColor)
-        rippleColor = accentColor.adjustAlpha(FAMILY_RIPPLE_ALPHA)
-        applyColorFilter(accentColor)
+        // sk18: icon, frame and ground are three roles; the arguments are kept for the callers of setColors
+        val frameColor = context.uiColor(UiRole.FAB_FRAME)
+        backgroundTintList = ColorStateList.valueOf(context.uiColor(UiRole.FAB_GROUND))
+        rippleColor = frameColor.adjustAlpha(FAMILY_RIPPLE_ALPHA)
+        applyColorFilter(context.uiColor(UiRole.FAB_ICON))
         val stroke = FAMILY_STROKE_DP * resources.displayMetrics.density
         val frame = MaterialShapeDrawable(shapeAppearanceModel).apply {
             fillColor = ColorStateList.valueOf(Color.TRANSPARENT)
-            strokeColor = ColorStateList.valueOf(accentColor)
+            strokeColor = ColorStateList.valueOf(frameColor)
             strokeWidth = stroke
         }
         // the stroke straddles the outline; half of it would be cut off by the button's own edge

@@ -25,7 +25,6 @@
         android:paddingEnd="@dimen/bigger_margin"
         android:paddingBottom="@dimen/normal_margin"
         android:text="@string/donate_short"
-        android:textColorHighlight="@color/disabled_text_color_highlight"
         android:textSize="@dimen/bigger_text_size" />
 
 </RelativeLayout>

@@ -1,5 +1,9 @@
 package org.fossify.commons.views
 
+import org.fossify.commons.extensions.applyFieldCursorRoles
+import android.graphics.drawable.GradientDrawable
+import org.fossify.commons.helpers.uiColor
+import org.fossify.commons.helpers.UiRole
 import android.app.Activity
 import android.content.Context
 import android.util.AttributeSet
@@ -103,16 +107,22 @@ open class MySearchMenu(context: Context, attrs: AttributeSet) : MyAppBarLayout(
     }
 
     fun updateColors() {
-        val backgroundColor = context.getProperBackgroundColor()
-        val contrastColor = backgroundColor.getContrastColor()
+        // sk18: ground, frame, text, hint and icons of the search bar are roles; its shape is built here
+        val backgroundColor = context.uiColor(UiRole.TOOLBAR_GROUND)
+        val density = resources.displayMetrics.density
 
         setBackgroundColor(backgroundColor)
-        binding.topToolbarSearchIcon.applyColorFilter(contrastColor)
-        binding.toolbarContainer.background?.applyColorFilter(
-            color = context.getProperPrimaryColor().adjustAlpha(LOWER_ALPHA)
-        )
-        binding.topToolbarSearch.setTextColor(contrastColor)
-        binding.topToolbarSearch.setHintTextColor(contrastColor.adjustAlpha(MEDIUM_ALPHA))
+        binding.topToolbarSearchIcon.applyColorFilter(context.uiColor(UiRole.SEARCH_ICON))
+        binding.toolbarContainer.background = GradientDrawable().apply {
+            cornerRadius = resources.getDimension(R.dimen.material_dialog_corner_radius)
+            setColor(context.uiColor(UiRole.SEARCH_GROUND))
+            setStroke((SEARCH_FRAME_DP * density).toInt().coerceAtLeast(1), context.uiColor(UiRole.SEARCH_FRAME))
+        }
+        binding.topToolbarSearch.setTextColor(context.uiColor(UiRole.SEARCH_TEXT))
+        binding.topToolbarSearch.setHintTextColor(context.uiColor(UiRole.SEARCH_HINT))
+        binding.topToolbarSearch.applyFieldCursorRoles()
         (context as? BaseSimpleActivity)?.updateTopBarColors(this, backgroundColor)
     }
 }
+
+private const val SEARCH_FRAME_DP = 1.25f

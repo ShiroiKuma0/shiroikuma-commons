@@ -5,27 +5,15 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 
+// sk18: derived from the scheme's text role, never from white, black or grey
 @get:ReadOnlyComposable
-val disabledTextColor @Composable get() = if (isInDarkThemeOrSurfaceIsNotLitWell()) Color.DarkGray else Color.LightGray
+val disabledTextColor @Composable get() = SimpleTheme.colorScheme.onSurface.copy(alpha = 0.38f)
 
 @get:ReadOnlyComposable
-val textSubTitleColor
-    @Composable get() = if (isInDarkThemeOrSurfaceIsNotLitWell()) {
-        Color.White.copy(0.6f)
-    } else {
-        Color.Black.copy(
-            0.6f,
-        )
-    }
+val textSubTitleColor @Composable get() = SimpleTheme.colorScheme.onSurface.copy(alpha = 0.6f)
 
 @get:ReadOnlyComposable
-val iconsColor
-    @Composable get() = if (isSurfaceNotLitWell()) {
-        Color.White
-    } else {
-        Color.Black
-    }
-
+val iconsColor @Composable get() = SimpleTheme.colorScheme.onSurface
 
 @Composable
 @ReadOnlyComposable

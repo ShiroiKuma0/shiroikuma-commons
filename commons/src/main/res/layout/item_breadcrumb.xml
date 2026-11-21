@@ -4,7 +4,6 @@
     android:id="@+id/breadcrumb_text"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@drawable/breadcrumb_button_background"
     android:gravity="center_vertical"
     android:minHeight="@dimen/breadcrumbs_layout_height"
     android:paddingVertical="@dimen/medium_margin"

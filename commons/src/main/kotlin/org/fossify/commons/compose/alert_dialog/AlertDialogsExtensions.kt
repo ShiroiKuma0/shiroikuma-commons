@@ -1,5 +1,7 @@
 package org.fossify.commons.compose.alert_dialog
 
+import org.fossify.commons.helpers.uiColor
+import org.fossify.commons.helpers.UiRole
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,21 +22,13 @@ import org.fossify.commons.R
 import org.fossify.commons.compose.theme.LocalTheme
 import org.fossify.commons.compose.theme.Shapes
 import org.fossify.commons.compose.theme.SimpleTheme
-import org.fossify.commons.compose.theme.light_grey_stroke
 import org.fossify.commons.compose.theme.model.Theme
 import org.fossify.commons.extensions.baseConfig
 import org.fossify.commons.helpers.isSPlus
 
 val dialogContainerColor
     @ReadOnlyComposable
-    @Composable get() = when (LocalTheme.current) {
-        is Theme.BlackAndWhite -> Color.Black
-        is Theme.SystemDefaultMaterialYou -> if (isSPlus()) colorResource(R.color.you_dialog_background_color) else SimpleTheme.colorScheme.surface
-        else -> {
-            val context = LocalContext.current
-            Color(context.baseConfig.backgroundColor)
-        }
-    }
+    @Composable get() = Color(LocalContext.current.uiColor(UiRole.DIALOG_GROUND))
 
 @Composable
 @ReadOnlyComposable
@@ -53,7 +47,7 @@ val dialogTextColor @Composable @ReadOnlyComposable get() = SimpleTheme.colorSch
 @ReadOnlyComposable
 fun Modifier.dialogBorder(): Modifier =
     when (LocalTheme.current) {
-        is Theme.BlackAndWhite -> this.border(1.dp, light_grey_stroke, dialogShape)
+        is Theme.BlackAndWhite -> this
         else -> this
     }
 

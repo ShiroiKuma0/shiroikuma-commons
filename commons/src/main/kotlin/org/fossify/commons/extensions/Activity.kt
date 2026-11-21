@@ -1,5 +1,7 @@
 package org.fossify.commons.extensions
 
+import org.fossify.commons.helpers.uiColor
+import org.fossify.commons.helpers.UiRole
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
@@ -100,36 +102,6 @@ fun Activity.appLaunched(appId: String) {
     baseConfig.internalStoragePath = getInternalStoragePath()
     updateSDCardPath()
     baseConfig.appId = appId
-    if (baseConfig.appRunCount == 0) {
-        baseConfig.wasOrangeIconChecked = true
-        checkAppIconColor()
-    } else if (!baseConfig.wasOrangeIconChecked) {
-        baseConfig.wasOrangeIconChecked = true
-        val primaryColor = resources.getColor(R.color.color_primary)
-        if (baseConfig.appIconColor != primaryColor) {
-            getAppIconColors().forEachIndexed { index, color ->
-                toggleAppIconColor(appId, index, color, false)
-            }
-
-            val defaultClassName = "${baseConfig.appId.removeSuffix(".debug")}.activities.SplashActivity"
-            packageManager.setComponentEnabledSetting(
-                ComponentName(baseConfig.appId, defaultClassName),
-                PackageManager.COMPONENT_ENABLED_STATE_DEFAULT,
-                PackageManager.DONT_KILL_APP
-            )
-
-            val orangeClassName = "${baseConfig.appId.removeSuffix(".debug")}.activities.SplashActivity.Green"
-            packageManager.setComponentEnabledSetting(
-                ComponentName(baseConfig.appId, orangeClassName),
-                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                PackageManager.DONT_KILL_APP
-            )
-
-            baseConfig.appIconColor = primaryColor
-            baseConfig.lastIconColor = primaryColor
-        }
-    }
-
     baseConfig.appRunCount++
     if (baseConfig.appRunCount % 30 == 0 && !isAProApp()) {
         if (!resources.getBoolean(R.bool.hide_google_relations)) {
@@ -1548,13 +1520,14 @@ fun Activity.setupDialogStuff(
         return
     }
 
-    val textColor = getProperTextColor()
-    val backgroundColor = getProperBackgroundColor()
-    val primaryColor = getProperPrimaryColor()
+    // sk18: every colour of a dialog is a role of its own — ground, frame, title, text and its buttons.
+    val textColor = uiColor(UiRole.DIALOG_TITLE)
+    val primaryColor = uiColor(UiRole.DIALOG_BUTTON_TEXT)
+    val buttonGround = uiColor(UiRole.DIALOG_BUTTON_GROUND)
     if (view is ViewGroup) {
-        updateTextColors(view)
+        updateTextColors(view, inDialog = true)
     } else if (view is MyTextView) {
-        view.setColors(textColor, primaryColor, backgroundColor)
+        view.applyRoles(inDialog = true)
     }
 
     if (dialog is MaterialAlertDialogBuilder) {
@@ -1602,11 +1575,7 @@ fun Activity.setupDialogStuff(
         }
 
         // if we use the same primary and background color, use the text color for dialog confirmation buttons
-        val dialogButtonColor = if (primaryColor == baseConfig.backgroundColor) {
-            textColor
-        } else {
-            primaryColor
-        }
+        val dialogButtonColor = primaryColor
 
         dialog.create().apply {
             setView(view)
@@ -1619,7 +1588,7 @@ fun Activity.setupDialogStuff(
             // Fork: optionally box the buttons (theme background fill + accent border + accent text) so
             // they read clearly on a dark dialog instead of vanishing as borderless same-colored text.
             val styleButtons = baseConfig.styledDialogButtons
-            val buttonAccent = baseConfig.dialogBorderColor
+            val buttonAccent = uiColor(UiRole.DIALOG_BUTTON_FRAME)
             val pillButtons = baseConfig.pillDialogButtons
             for (which in intArrayOf(AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEGATIVE, AlertDialog.BUTTON_NEUTRAL)) {
                 // Fork (sk12): pills — the positive button is the main action (thick frame, bold text),
@@ -1627,13 +1596,11 @@ fun Activity.setupDialogStuff(
                 if (pillButtons) {
                     getButton(which)?.apply {
                         val density = resources.displayMetrics.density
-                        val accent = when {
-                            which == destructiveButton -> baseConfig.dialogWarningColor
-                            buttonAccent != 0 -> buttonAccent
-                            else -> primaryColor
-                        }
+                        // a destructive button lends its red to frame and label alike
+                        val destructive = which == destructiveButton
+                        val accent = if (destructive) uiColor(UiRole.BUTTON_DESTRUCTIVE) else buttonAccent
                         val main = which == AlertDialog.BUTTON_POSITIVE
-                        setTextColor(accent)
+                        setTextColor(if (destructive) accent else primaryColor)
                         applyFontToTextView(this)
                         isAllCaps = false
                         setTypeface(typeface, if (main) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
@@ -1649,7 +1616,7 @@ fun Activity.setupDialogStuff(
                         }
                         stateListAnimator = null
                         elevation = 0f
-                        background = pillDrawable(accent, baseConfig.backgroundColor, main)
+                        background = pillDrawable(accent, buttonGround, main)
                         val padH = (18 * density).toInt()
                         val padV = (9 * density).toInt()
                         setPadding(padH, padV, padH, padV)
@@ -1670,7 +1637,7 @@ fun Activity.setupDialogStuff(
                         background = GradientDrawable().apply {
                             shape = GradientDrawable.RECTANGLE
                             cornerRadius = 8 * density
-                            setColor(baseConfig.backgroundColor)
+                            setColor(buttonGround)
                             setStroke((1.5f * density).toInt().coerceAtLeast(1), buttonAccent)
                         }
                         val padH = (12 * density).toInt()
@@ -1682,11 +1649,7 @@ fun Activity.setupDialogStuff(
 
             applyFontToViewRecursively(view)
 
-            val bgDrawable = when {
-                isBlackAndWhiteTheme() -> resources.getDrawable(R.drawable.black_dialog_background, theme)
-                isDynamicTheme() -> resources.getDrawable(R.drawable.dialog_you_background, theme)
-                else -> resources.getColoredDrawableWithColor(R.drawable.dialog_bg, baseConfig.backgroundColor)
-            }
+            val bgDrawable = dialogGroundDrawable()
 
             // Fork: draw a configurable accent border around the dialog so it is delineated from a
             // same-colored (e.g. black) app background behind it.
@@ -1696,11 +1659,14 @@ fun Activity.setupDialogStuff(
     }
 }
 
-fun Activity.getAlertDialogBuilder() = if (isDynamicTheme()) {
-    MaterialAlertDialogBuilder(this)
-} else {
-    AlertDialog.Builder(this)
+/** The ground of a dialog window: a rounded panel in the dialog-ground role, built in code (sk18). */
+fun Context.dialogGroundDrawable(): Drawable = GradientDrawable().apply {
+    shape = GradientDrawable.RECTANGLE
+    cornerRadius = 16 * resources.displayMetrics.density
+    setColor(uiColor(UiRole.DIALOG_GROUND))
 }
+
+fun Activity.getAlertDialogBuilder() = AlertDialog.Builder(this)
 
 // Fork: layer a configurable accent border (dp width + color from BaseConfig) over a dialog's window
 // background. A no-op when the width is 0, so stock consumers are unaffected. The border layer is
@@ -1715,7 +1681,7 @@ fun Context.withDialogBorder(background: Drawable): Drawable {
         shape = GradientDrawable.RECTANGLE
         cornerRadius = 16 * resources.displayMetrics.density
         setColor(Color.TRANSPARENT)
-        setStroke(widthPx, baseConfig.dialogBorderColor)
+        setStroke(widthPx, uiColor(UiRole.DIALOG_FRAME))
     }
     return LayerDrawable(arrayOf(background, border)).apply {
         val inset = widthPx / 2

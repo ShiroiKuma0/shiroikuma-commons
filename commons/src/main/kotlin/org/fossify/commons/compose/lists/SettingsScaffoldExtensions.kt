@@ -64,7 +64,7 @@ internal fun transitionFractionAndScrolledColor(
     val systemUiController = rememberSystemUiController()
     val colorTransitionFraction = scrollBehavior.state.overlappedFraction
     val scrolledColor = lerp(
-        start = if (isSurfaceLitWell()) Color.Black else Color.White,
+        start = SimpleTheme.colorScheme.onSurface,
         stop = contrastColor,
         fraction = if (colorTransitionFraction > 0.01f) 1f else 0f
     )

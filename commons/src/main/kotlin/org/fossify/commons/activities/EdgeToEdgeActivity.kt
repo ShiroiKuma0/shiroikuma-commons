@@ -1,5 +1,14 @@
 package org.fossify.commons.activities
 
+import org.fossify.commons.extensions.setNavigationBarAppearance
+import org.fossify.commons.extensions.setStatusBarAppearance
+import org.fossify.commons.extensions.beVisibleIf
+import android.widget.FrameLayout
+import android.view.Gravity
+import android.view.ViewGroup
+import org.fossify.commons.helpers.isUiColorSet
+import org.fossify.commons.helpers.uiColor
+import org.fossify.commons.helpers.UiRole
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.os.Bundle
@@ -47,6 +56,41 @@ abstract class EdgeToEdgeActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         window.setSystemBarsAppearance(getProperBackgroundColor())
+        applySystemBarRoles()
+    }
+
+    // shiroikuma (sk18): the status and navigation bars are roles. Edge to edge they are transparent and the
+    // screen shows through, which stays the default; once a role is SET on the UI page, a strip of that
+    // colour is drawn behind the bar's icons, as high as the bar's inset.
+    private var statusBarStrip: View? = null
+    private var navigationBarStrip: View? = null
+
+    private fun applySystemBarRoles() {
+        val decor = window.decorView as? ViewGroup ?: return
+        val statusSet = isUiColorSet(UiRole.STATUS_BAR)
+        val navigationSet = isUiColorSet(UiRole.NAVIGATION_BAR)
+        if (!statusSet && !navigationSet && statusBarStrip == null && navigationBarStrip == null) return
+
+        fun strip(existing: View?, gravity: Int): View = existing ?: View(this).also {
+            decor.addView(it, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, 0, gravity))
+        }
+        val status = strip(statusBarStrip, Gravity.TOP).also { statusBarStrip = it }
+        val navigation = strip(navigationBarStrip, Gravity.BOTTOM).also { navigationBarStrip = it }
+        status.beVisibleIf(statusSet)
+        navigation.beVisibleIf(navigationSet)
+        if (statusSet) {
+            status.setBackgroundColor(uiColor(UiRole.STATUS_BAR))
+            window.setStatusBarAppearance(uiColor(UiRole.STATUS_BAR))
+        }
+        if (navigationSet) {
+            navigation.setBackgroundColor(uiColor(UiRole.NAVIGATION_BAR))
+            window.setNavigationBarAppearance(uiColor(UiRole.NAVIGATION_BAR))
+        }
+        ViewCompat.getRootWindowInsets(decor)?.let { insets ->
+            val bars = insets.getInsetsIgnoringVisibility(Type.systemBars())
+            status.layoutParams = status.layoutParams.apply { height = bars.top }
+            navigation.layoutParams = navigation.layoutParams.apply { height = bars.bottom }
+        } ?: decor.post { if (!isDestroyed) applySystemBarRoles() }
     }
 
     /**
@@ -113,7 +157,7 @@ abstract class EdgeToEdgeActivity : AppCompatActivity() {
 
     private fun scrollingChanged(newScrollY: Int, oldScrollY: Int) {
         if (newScrollY > 0 && oldScrollY == 0) {
-            animateTopBarColors(getProperBackgroundColor(), getColoredMaterialStatusBarColor())
+            animateTopBarColors(uiColor(UiRole.TOOLBAR_GROUND), getColoredMaterialStatusBarColor())
         } else if (newScrollY == 0 && oldScrollY > 0) {
             animateTopBarColors(getColoredMaterialStatusBarColor(), getRequiredTopBarColor())
         }
@@ -141,24 +185,22 @@ abstract class EdgeToEdgeActivity : AppCompatActivity() {
             (scrollingView is RecyclerView || scrollingView is NestedScrollView)
             && scrollingView?.computeVerticalScrollOffset() == 0
         ) {
-            getProperBackgroundColor()
+            uiColor(UiRole.TOOLBAR_GROUND)
         } else {
             getColoredMaterialStatusBarColor()
         }
     }
 
     fun updateTopBarColors(topAppBar: MyAppBarLayout, color: Int) {
-        val contrastColor = if (isSearchBarEnabled) {
-            getProperBackgroundColor().getContrastColor()
-        } else {
-            color.getContrastColor()
-        }
+        // sk18: title and icons of the top bar are roles of their own, not the contrast of its ground
+        val titleColor = uiColor(UiRole.TOOLBAR_TITLE)
+        val contrastColor = uiColor(UiRole.TOOLBAR_ICON)
 
         window.setSystemBarsAppearance(color)
         if (!isSearchBarEnabled) {
             topAppBar.setBackgroundColor(color)
             topAppBar.toolbar?.setBackgroundColor(color)
-            topAppBar.toolbar?.setTitleTextColor(contrastColor)
+            topAppBar.toolbar?.setTitleTextColor(titleColor)
             topAppBar.toolbar?.navigationIcon?.applyColorFilter(contrastColor)
             topAppBar.toolbar?.collapseIcon = resources.getColoredDrawableWithColor(
                 drawableId = R.drawable.ic_arrow_left_vector,

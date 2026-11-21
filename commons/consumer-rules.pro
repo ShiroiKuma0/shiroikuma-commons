@@ -71,3 +71,6 @@
 -keep class org.fossify.commons.models.contacts.Relation { *; }
 -keep class org.fossify.commons.models.contacts.SipAddress { *; }
 -keep class org.fossify.commons.models.contacts.DataRow { *; }
+
+# shiroikuma (sk18): named by the theme (viewInflaterClass), created by reflection
+-keep class org.fossify.commons.views.FamilyViewInflater { <init>(); }

@@ -30,63 +30,24 @@ internal fun Theme(
     val baseConfig = remember { context.config }
     val isSystemInDarkTheme = isSystemInDarkTheme()
 
-    val colorScheme = if (!view.isInEditMode) {
-        when {
-            theme is Theme.SystemDefaultMaterialYou && isSPlus() -> {
-                if (isSystemInDarkTheme) {
-                    dynamicDarkColorScheme(context)
-                } else {
-                    dynamicLightColorScheme(context)
-                }
-            }
-
-            theme is Theme.Custom && theme.backgroundColor.isLitWell() -> lightColorScheme(
-                primary = theme.primaryColor,
-                onPrimary = Color(theme.primaryColorInt.getContrastColor()),
-                surface = theme.backgroundColor,
-                onSurface = theme.textColor,
-                surfaceVariant = theme.backgroundColor
-            )
-
-            theme is Theme.Custom -> darkColorScheme(
-                primary = theme.primaryColor,
-                onPrimary = Color(theme.primaryColorInt.getContrastColor()),
-                surface = theme.backgroundColor,
-                onSurface = theme.textColor,
-                surfaceVariant = theme.backgroundColor
-            )
-
-            theme is Theme.Dark -> darkColorScheme(
-                primary = theme.primaryColor,
-                onPrimary = Color(theme.primaryColorInt.getContrastColor()),
-                surface = theme.backgroundColor,
-                onSurface = theme.textColor
-            )
-
-            theme is Theme.White -> lightColorScheme(
-                primary = Color(theme.accentColor),
-                onPrimary = Color(theme.accentColor.getContrastColor()),
-                surface = theme.backgroundColor,
-                tertiary = theme.primaryColor,
-                onSurface = theme.textColor
-            )
-
-            theme is Theme.BlackAndWhite -> darkColorScheme(
-                primary = Color(theme.accentColor),
-                onPrimary = Color(theme.accentColor.getContrastColor()),
-                surface = theme.backgroundColor,
-                tertiary = theme.primaryColor,
-                onSurface = theme.textColor
-            )
-
-            else -> darkColorScheme
-        }
+    // sk18: one scheme, from the theme's three foundation roles; light or dark only decides Material's
+    // remaining slots, never a colour of ours.
+    val accent = theme.primaryColor
+    val onAccent = theme.backgroundColor
+    val colorScheme = if (theme.backgroundColor.isLitWell()) {
+        lightColorScheme(
+            primary = accent, onPrimary = onAccent, secondary = accent, onSecondary = onAccent, tertiary = accent,
+            surface = theme.backgroundColor, onSurface = theme.textColor, background = theme.backgroundColor,
+            onBackground = theme.textColor, surfaceVariant = theme.backgroundColor, onSurfaceVariant = theme.textColor,
+            outline = accent,
+        )
     } else {
-        previewColorScheme()
-    }
-
-    SideEffect {
-        updateRecentsAppIcon(baseConfig, context)
+        darkColorScheme(
+            primary = accent, onPrimary = onAccent, secondary = accent, onSecondary = onAccent, tertiary = accent,
+            surface = theme.backgroundColor, onSurface = theme.textColor, background = theme.backgroundColor,
+            onBackground = theme.textColor, surfaceVariant = theme.backgroundColor, onSurfaceVariant = theme.textColor,
+            outline = accent,
+        )
     }
 
     val dimensions = CommonDimensions
@@ -149,11 +110,3 @@ private fun getCustomTypography(context: Context): Typography {
 
 val LocalTheme: ProvidableCompositionLocal<Theme> =
     staticCompositionLocalOf { Theme.Custom(1, 1, 1, 1) }
-
-@Composable
-private fun previewColorScheme() = if (isSystemInDarkTheme()) {
-    darkColorScheme
-} else {
-    lightColorScheme
-}
-

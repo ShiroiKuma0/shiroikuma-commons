@@ -9,5 +9,4 @@
     android:paddingRight="@dimen/bigger_margin"
     android:paddingBottom="@dimen/normal_margin"
     android:text="@string/purchase_thank_you"
-    android:textColorHighlight="@color/disabled_text_color_highlight"
     android:textSize="@dimen/bigger_text_size" />

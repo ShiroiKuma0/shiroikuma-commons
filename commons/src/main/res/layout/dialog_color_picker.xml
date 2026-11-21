@@ -70,8 +70,7 @@
                 android:layout_width="@dimen/activity_margin"
                 android:layout_height="@dimen/activity_margin"
                 android:adjustViewBounds="true"
-                android:scaleType="fitCenter"
-                android:src="@drawable/color_picker_circle" />
+                android:scaleType="fitCenter" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -139,8 +138,7 @@
                 android:id="@+id/color_picker_old_color"
                 android:layout_width="@dimen/colorpicker_items_height"
                 android:layout_height="@dimen/colorpicker_items_height"
-                android:layout_toStartOf="@+id/color_picker_arrow"
-                android:background="@android:color/white" />
+                android:layout_toStartOf="@+id/color_picker_arrow" />
 
             <ImageView
                 android:id="@+id/color_picker_arrow"
@@ -156,8 +154,7 @@
                 android:id="@+id/color_picker_new_color"
                 android:layout_width="@dimen/colorpicker_items_height"
                 android:layout_height="@dimen/colorpicker_items_height"
-                android:layout_toEndOf="@+id/color_picker_arrow"
-                android:background="@android:color/white" />
+                android:layout_toEndOf="@+id/color_picker_arrow" />
         </RelativeLayout>
     </RelativeLayout>
 </ScrollView>

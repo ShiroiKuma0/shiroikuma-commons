@@ -1,5 +1,7 @@
 package org.fossify.commons.extensions
 
+import org.fossify.commons.helpers.uiColor
+import org.fossify.commons.helpers.UiRole
 import android.Manifest
 import android.app.Activity
 import android.app.Application
@@ -187,10 +189,10 @@ private fun doToast(context: Context, message: String, length: Int) {
 @Suppress("DEPRECATION")
 private fun showThemedToast(context: Context, message: String, length: Int) {
     val density = context.resources.displayMetrics.density
-    val accentColor = context.getProperPrimaryColor()
+    val accentColor = context.uiColor(UiRole.TOAST_TEXT)
     val toastBackground = GradientDrawable().apply {
-        setColor(context.getProperBackgroundColor())
-        setStroke((2 * density).toInt(), accentColor)
+        setColor(context.uiColor(UiRole.TOAST_GROUND))
+        setStroke((2 * density).toInt(), context.uiColor(UiRole.TOAST_FRAME))
         cornerRadius = 8 * density
     }
 
@@ -1308,11 +1310,7 @@ fun Context.getPhoneNumberTypeText(type: Int, label: String): String {
 }
 
 fun Context.updateBottomTabItemColors(view: View?, isActive: Boolean, drawableId: Int? = null) {
-    val color = if (isActive) {
-        getProperPrimaryColor()
-    } else {
-        getProperTextColor()
-    }
+    val color = uiColor(if (isActive) UiRole.BOTTOM_TAB_ACTIVE else UiRole.BOTTOM_TAB_IDLE)
 
     if (drawableId != null) {
         val drawable = ResourcesCompat.getDrawable(resources, drawableId, theme)

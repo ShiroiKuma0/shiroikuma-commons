@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/simple_list_item_height"
-    android:background="@drawable/ripple_background"
     android:paddingHorizontal="@dimen/activity_margin">
 
     <androidx.appcompat.widget.AppCompatImageView

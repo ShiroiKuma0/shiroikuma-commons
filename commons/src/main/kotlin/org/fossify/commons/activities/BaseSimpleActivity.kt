@@ -1,5 +1,7 @@
 package org.fossify.commons.activities
 
+import org.fossify.commons.helpers.uiColor
+import org.fossify.commons.helpers.UiRole
 import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.app.RecoverableSecurityException
@@ -274,7 +276,8 @@ abstract class BaseSimpleActivity : EdgeToEdgeActivity() {
         topBarColor: Int = getRequiredTopBarColor(),
         searchMenuItem: MenuItem? = null,
     ) {
-        val contrastColor = topBarColor.getContrastColor()
+        // sk18: the top bar's icons are a role of their own, not the contrast of its ground
+        val contrastColor = uiColor(UiRole.TOOLBAR_ICON)
         if (navigationIcon != NavigationIcon.None) {
             val drawableId = if (navigationIcon == NavigationIcon.Cross) {
                 R.drawable.ic_cross_vector
@@ -304,8 +307,8 @@ abstract class BaseSimpleActivity : EdgeToEdgeActivity() {
             searchMenuItem?.actionView
                 ?.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
                 ?.apply {
-                    setTextColor(contrastColor)
-                    setHintTextColor(contrastColor.adjustAlpha(MEDIUM_ALPHA))
+                    setTextColor(uiColor(UiRole.SEARCH_TEXT))
+                    setHintTextColor(uiColor(UiRole.SEARCH_HINT))
                     hint = "${getString(R.string.search)}…"
 
                     if (isQPlus()) {
@@ -322,23 +325,8 @@ abstract class BaseSimpleActivity : EdgeToEdgeActivity() {
         }
     }
 
-    fun updateRecentsAppIcon() {
-        if (baseConfig.isUsingModifiedAppIcon) {
-            val appIconIDs = getAppIconIDs()
-            val currentAppIconColorIndex = getCurrentAppIconColorIndex()
-            if (appIconIDs.size - 1 < currentAppIconColorIndex) {
-                return
-            }
-
-            val recentsIcon =
-                BitmapFactory.decodeResource(resources, appIconIDs[currentAppIconColorIndex])
-            val title = getAppLauncherName()
-            val color = baseConfig.primaryColor
-
-            val description = ActivityManager.TaskDescription(title, recentsIcon, color)
-            setTaskDescription(description)
-        }
-    }
+    // sk18: the launcher icon's colour is no longer switched, so the recents entry keeps the app's own icon.
+    fun updateRecentsAppIcon() {}
 
     fun updateMenuItemColors(
         menu: Menu?,
@@ -352,10 +340,8 @@ abstract class BaseSimpleActivity : EdgeToEdgeActivity() {
 
         // Fork: iconColor overrides the default contrast-of-baseColor (e.g. to tint action-bar icons
         // with the app's accent color instead of plain black/white).
-        var color = iconColor ?: baseColor.getContrastColor()
-        if (forceWhiteIcons) {
-            color = Color.WHITE
-        }
+        // sk18: no forced white — the icons follow their role (forceWhiteIcons is kept for its callers only)
+        val color = iconColor ?: uiColor(UiRole.TOOLBAR_ICON)
 
         for (i in 0 until menu.size) {
             try {
@@ -363,16 +349,6 @@ abstract class BaseSimpleActivity : EdgeToEdgeActivity() {
             } catch (ignored: Exception) {
             }
         }
-    }
-
-    private fun getCurrentAppIconColorIndex(): Int {
-        val appIconColor = baseConfig.appIconColor
-        getAppIconColors().forEachIndexed { index, color ->
-            if (color == appIconColor) {
-                return index
-            }
-        }
-        return 0
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
@@ -634,16 +610,6 @@ abstract class BaseSimpleActivity : EdgeToEdgeActivity() {
             putExtra(APP_PACKAGE_NAME, baseConfig.appId)
             putExtra(APP_FAQ, faqItems)
             putExtra(SHOW_FAQ_BEFORE_MAIL, showFAQBeforeMail)
-            startActivity(this)
-        }
-    }
-
-    fun startCustomizationActivity() {
-        // shiroikuma fork: removed the anti-tamper guard that refused to open this screen
-        // (and nagged) once appRunCount > 100 on a non-org.fossify.* id.
-        Intent(applicationContext, CustomizationActivity::class.java).apply {
-            putExtra(APP_ICON_IDS, getAppIconIDs())
-            putExtra(APP_LAUNCHER_NAME, getAppLauncherName())
             startActivity(this)
         }
     }

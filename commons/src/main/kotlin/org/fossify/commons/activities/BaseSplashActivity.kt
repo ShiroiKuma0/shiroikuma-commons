@@ -23,15 +23,6 @@ abstract class BaseSplashActivity : AppCompatActivity() {
         }
 
         syncGlobalConfig {
-            baseConfig.apply {
-                if (isAutoTheme()) {
-                    val isUsingSystemDarkTheme = isSystemInDarkMode()
-                    textColor = resources.getColor(if (isUsingSystemDarkTheme) R.color.theme_dark_text_color else R.color.theme_light_text_color)
-                    backgroundColor =
-                        resources.getColor(if (isUsingSystemDarkTheme) R.color.theme_dark_background_color else R.color.theme_light_background_color)
-                }
-            }
-
             initActivity()
         }
     }

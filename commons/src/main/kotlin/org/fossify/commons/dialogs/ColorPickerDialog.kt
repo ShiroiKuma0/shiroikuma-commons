@@ -2,6 +2,7 @@
 
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.extensions.colorPickerRing
 import org.fossify.commons.compose.components.DialogButton
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -393,6 +394,7 @@ private fun DialogColorPickerBinding.moveHuePicker(hsv: Hsv) {
 private fun DialogColorPickerBinding.moveColorPicker(hsv: Hsv) {
     val x = hsv.getSat() * colorPickerSquare.measuredWidth
     val y = (1f - hsv.getVal()) * colorPickerSquare.measuredHeight
+    if (colorPickerCursor.drawable == null) colorPickerCursor.setImageDrawable(colorPickerRing(colorPickerCursor.context))
     colorPickerCursor.x = colorPickerSquare.left + x - colorPickerCursor.width / 2
     colorPickerCursor.y = colorPickerSquare.top + y - colorPickerCursor.height / 2
 }
@@ -418,7 +420,7 @@ private fun ColorPickerAlertDialogPreview() {
     AppThemeSurface {
         ColorPickerAlertDialog(
             alertDialogState = rememberAlertDialogState(),
-            color = colorResource(id = R.color.color_primary).toArgb(),
+            color = SimpleTheme.colorScheme.primary.toArgb(),
             onActiveColorChange = {}
         ) { _, _ -> }
     }

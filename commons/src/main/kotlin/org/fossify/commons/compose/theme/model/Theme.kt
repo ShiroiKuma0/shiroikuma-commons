@@ -66,7 +66,7 @@ sealed class Theme : CommonTheme {
                 appIconColorInt = config.appIconColor,
                 primaryColorInt = config.primaryColor,
                 backgroundColorInt = config.backgroundColor,
-                textColorInt = if (isSPlus()) colorResource(R.color.you_neutral_text_color).toArgb() else (if (isInDarkThemeAndSurfaceIsNotLitWell()) Color.White else Color.Black).toArgb()
+                textColorInt = config.textColor
             )
         }
     }
