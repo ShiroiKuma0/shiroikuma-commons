@@ -89,4 +89,7 @@
     <string name="ui_role_picker_heading">日付選択：月と年</string>
     <string name="ui_role_picker_arrow">日付選択：矢印</string>
     <string name="ui_role_picker_arrow_frame">日付選択：矢印の枠</string>
+    <string name="ui_role_picker_time_digits">時刻選択：数字</string>
+    <string name="ui_role_picker_time_separator">時刻選択：コロン</string>
+    <string name="ui_role_picker_am_pm">時刻選択：午前／午後</string>
 </resources>

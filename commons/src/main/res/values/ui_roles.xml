@@ -90,4 +90,7 @@
     <string name="ui_role_picker_heading">Date picker: month and year</string>
     <string name="ui_role_picker_arrow">Date picker: arrows</string>
     <string name="ui_role_picker_arrow_frame">Date picker: arrow frames</string>
+    <string name="ui_role_picker_time_digits">Time picker: digits</string>
+    <string name="ui_role_picker_time_separator">Time picker: colon</string>
+    <string name="ui_role_picker_am_pm">Time picker: AM / PM</string>
 </resources>

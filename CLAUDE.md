@@ -124,7 +124,7 @@ JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :commons:publishToMavenLo
 (`sdk.dir=/home/shiroikuma/android-sdk`). The consuming apps pin `commons = "6.1.6-sk5"`.
 
 The `-skN` suffix is **our** patch revision (independent of the upstream Commons version): bump it
-(`sk1` → `sk2` → …) whenever you change the patch, so consumers opt in by bumping their pin. Current: `sk17`
+(`sk1` → `sk2` → …) whenever you change the patch, so consumers opt in by bumping their pin. Current: `sk19`
 (`sk1` = anti-tamper only; `sk2` added the fork-package fixes; `sk3` the dialog accent border + boxed
 buttons; `sk4`–`sk5` the black/yellow contextual action bar + menus above; `sk6` the theme-styled toasts;
 `sk7` the `ContactsHelper` raw-contact insert falling back to the local account when a stale source has
@@ -251,3 +251,47 @@ Under `BaseConfig.pillDialogButtons` (nothing changes with it off):
   and for a 3 dp frame in the button's own shape (a `MaterialShapeDrawable` as the foreground).
 
 **Re-apply when rebasing.**
+
+## Every colour a role, none in XML (`sk18`)
+
+白い熊, 2026-11-21: `#FFFF00` and `#000000` are defaults only, and every item's colour is settable in the
+consuming app's UI. Owner of this rebuild: the renrakusaki chat.
+
+- **`helpers/UiRoles.kt`** is the one table: `UiRole` (key, section `UiRoleSection`, label, default) for
+  everything the commons draws — foundation (background, accent, text), text, fields, buttons, dialogs,
+  pickers, switches, check boxes and radio buttons, menus, lists, bars, toasts. The two primaries are
+  written there once (`FAMILY_YELLOW`, `FAMILY_BLACK`); every other default is derived from the three
+  foundation roles. Stored under `ui_role_<key>`; read with `uiColor(role)`, written with `setUiColor` /
+  `resetUiColor` / `resetAllUiColors`. **A role's key is stored in every app's settings — never rename one.**
+  Labels: `res/values/ui_roles.xml` (+ `values-ja`).
+- **No colour in XML.** `colors.xml`, the `md_` palette, the per-colour / white / system-dynamic themes,
+  the coloured shape drawables, `CustomizationActivity` and the line colour picker are deleted. One theme,
+  `AppTheme.Base`, whose only colour is the black `android:windowBackground` (drawn before code runs).
+  Shapes are built in code: `extensions/UiRoleViews.kt` (`rowSelectorDrawable`, `rippleDrawable`,
+  `circleDrawable`, `listDividerDrawable`, `menuPanelDrawable`, `sectionFrameDrawable`, …); `MyDivider`
+  paints `@layout/divider`. `widget_round_background` keeps a literal (a home-screen widget's shape).
+- **`views/FamilyViewInflater`** is the theme's `viewInflaterClass` (kept by `consumer-rules.pro`): stock
+  widgets get their roles as they are inflated, and a single-colour vector icon is tinted on its drawable,
+  never on the view (a view tint would colour a photo loaded later). The `My*` views carry `applyRoles()`,
+  called from `updateTextColors(viewGroup, inDialog)`.
+- The old theme predicates (`isDynamicTheme()`, `isWhiteTheme()`, …) always answer false and
+  `getThemeId()` is always `AppTheme_Base`; `dialogBorderColor`, `switchOffColor` and `dialogWarningColor`
+  are aliases of their roles. The Compose theme is one scheme built from the roles.
+- **`views/FamilyDatePicker`**: a month grid drawn in code — a ring on the chosen day, a short line under
+  today, arrow pills, the year stepping by 1 and by 10 — every part from a `UiRole.PICKER_*` role. The
+  platform `DatePicker` draws its grid from theme attributes with no setter; do not put one in a layout.
+
+Consumers: renrakusaki and denwa from `sk18`. **This is the bulk of the fork now — a rebase onto a new
+Commons tag re-applies it as a whole.**
+
+## A time picker of our own, and a settable week start (`sk19`)
+
+- **`views/FamilyTimePicker`** (Messēji asked): hour and minute columns, an arrow pill above and below each;
+  a held arrow keeps stepping, the minutes by five once it runs; a tap on the minutes rounds them to the
+  next five; an AM / PM pill in the 12-hour form. API as the platform's: `hour` (0–23), `minute`,
+  `setTime`, `is24HourView`, `onTimeChanged`. Roles `PICKER_TIME_DIGITS`, `PICKER_TIME_SEPARATOR`,
+  `PICKER_AM_PM`; its arrows share `PICKER_ARROW` / `PICKER_ARROW_FRAME` with the date picker.
+- **`FamilyDatePicker`** (Yotēhyō asked): `firstDayOfWeek` (a `Calendar` day; default the locale's),
+  `showDays` (off = a month-and-year picker) and `showMonth` (off = a year picker).
+
+Consumers: yotehyo and messeji from `sk19`.
