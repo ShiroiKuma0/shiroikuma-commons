@@ -116,6 +116,14 @@ enum class UiRole(
     PICKER_HEADING("picker_heading", UiRoleSection.DIALOGS, R.string.ui_role_picker_heading, { of(DIALOG_TITLE) }),
     PICKER_ARROW("picker_arrow", UiRoleSection.DIALOGS, R.string.ui_role_picker_arrow, { of(BUTTON_TEXT) }),
     PICKER_ARROW_FRAME("picker_arrow_frame", UiRoleSection.DIALOGS, R.string.ui_role_picker_arrow_frame, { of(BUTTON_FRAME) }),
+    // …and the time picker (views/FamilyTimePicker): its digits, the colon between them, the AM / PM mark.
+    // Its arrows are the date picker's.
+    PICKER_TIME_DIGITS("picker_time_digits", UiRoleSection.DIALOGS, R.string.ui_role_picker_time_digits, { of(DIALOG_TITLE) }),
+    PICKER_TIME_SEPARATOR(
+        "picker_time_separator", UiRoleSection.DIALOGS, R.string.ui_role_picker_time_separator,
+        { toward(text, MARK_OFF_BLEND) },
+    ),
+    PICKER_AM_PM("picker_am_pm", UiRoleSection.DIALOGS, R.string.ui_role_picker_am_pm, { of(BUTTON_TEXT) }),
 
     // Switches — an outline and a dot, on and off
     SWITCH_ON_OUTLINE("switch_on_outline", UiRoleSection.SWITCHES, R.string.ui_role_switch_on_outline, { accent }),

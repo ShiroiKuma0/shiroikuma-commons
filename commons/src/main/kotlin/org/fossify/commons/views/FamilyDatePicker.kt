@@ -12,6 +12,7 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import org.fossify.commons.extensions.applyFontToTextView
+import org.fossify.commons.extensions.beVisibleIf
 import org.fossify.commons.extensions.pillDrawable
 import org.fossify.commons.helpers.UiRole
 import org.fossify.commons.helpers.uiColor
@@ -40,6 +41,30 @@ class FamilyDatePicker @JvmOverloads constructor(
     var dayOfMonth = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
         private set
 
+    /**
+     * The weekday the grid's first column shows, as a java.util.Calendar constant (SUNDAY = 1 … SATURDAY = 7).
+     * The locale's by default; an app with its own "first day of the week" setting sets it (sk19).
+     */
+    var firstDayOfWeek: Int = Calendar.getInstance().firstDayOfWeek
+        set(value) {
+            field = value.coerceIn(Calendar.SUNDAY, Calendar.SATURDAY)
+            grid.invalidate()
+        }
+
+    /** Whether the day grid is shown; false leaves a month-and-year picker (sk19). */
+    var showDays = true
+        set(value) {
+            field = value
+            grid.beVisibleIf(value)
+        }
+
+    /** Whether the month row is shown; false together with [showDays] leaves a year picker (sk19). */
+    var showMonth = true
+        set(value) {
+            field = value
+            monthRow.beVisibleIf(value)
+        }
+
     /** Called whenever the chosen date changes. */
     var onDateChanged: ((year: Int, month: Int, dayOfMonth: Int) -> Unit)? = null
 
@@ -47,11 +72,13 @@ class FamilyDatePicker @JvmOverloads constructor(
     private val monthLabel = heading()
     private val yearLabel = heading()
     private val grid = DayGrid(context)
+    private val monthRow: View
 
     init {
         orientation = VERTICAL
         gravity = Gravity.CENTER_HORIZONTAL
-        addView(row(arrow("‹") { shiftMonth(-1) }, monthLabel, arrow("›") { shiftMonth(1) }))
+        monthRow = row(arrow("‹") { shiftMonth(-1) }, monthLabel, arrow("›") { shiftMonth(1) })
+        addView(monthRow)
         addView(
             row(
                 arrow("«") { shiftYear(-YEAR_LEAP) }, arrow("‹") { shiftYear(-1) }, yearLabel,
@@ -136,7 +163,7 @@ class FamilyDatePicker @JvmOverloads constructor(
         private val cell = dp(CELL_DP)
         private val text = Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign = Paint.Align.CENTER }
         private val line = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
-        private val firstWeekday = Calendar.getInstance().firstDayOfWeek
+        private val firstWeekday get() = firstDayOfWeek
         private val weekdayNames = DateFormatSymbols.getInstance().shortWeekdays
 
         override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
