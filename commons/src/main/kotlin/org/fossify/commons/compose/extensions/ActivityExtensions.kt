@@ -17,7 +17,6 @@ import org.fossify.commons.extensions.getInternalStoragePath
 import org.fossify.commons.extensions.isAppInstalledOnSDCard
 import org.fossify.commons.extensions.random
 import org.fossify.commons.extensions.showAutomaticSupportPromptIfEligible
-import org.fossify.commons.extensions.toggleAppIconColor
 import org.fossify.commons.extensions.updateSDCardPath
 import org.fossify.commons.helpers.isOreoMr1Plus
 import org.fossify.commons.models.Release
@@ -28,36 +27,6 @@ fun ComponentActivity.appLaunchedCompose(
     baseConfig.internalStoragePath = getInternalStoragePath()
     updateSDCardPath()
     baseConfig.appId = appId
-    if (baseConfig.appRunCount == 0) {
-        baseConfig.wasOrangeIconChecked = true
-        checkAppIconColor()
-    } else if (!baseConfig.wasOrangeIconChecked) {
-        baseConfig.wasOrangeIconChecked = true
-        val primaryColor = ContextCompat.getColor(this, R.color.color_primary)
-        if (baseConfig.appIconColor != primaryColor) {
-            getAppIconColors().forEachIndexed { index, color ->
-                toggleAppIconColor(appId, index, color, false)
-            }
-
-            val defaultClassName = "${baseConfig.appId.removeSuffix(".debug")}.activities.SplashActivity"
-            packageManager.setComponentEnabledSetting(
-                ComponentName(baseConfig.appId, defaultClassName),
-                PackageManager.COMPONENT_ENABLED_STATE_DEFAULT,
-                PackageManager.DONT_KILL_APP
-            )
-
-            val greenClassName = "${baseConfig.appId.removeSuffix(".debug")}.activities.SplashActivity.Green"
-            packageManager.setComponentEnabledSetting(
-                ComponentName(baseConfig.appId, greenClassName),
-                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                PackageManager.DONT_KILL_APP
-            )
-
-            baseConfig.appIconColor = primaryColor
-            baseConfig.lastIconColor = primaryColor
-        }
-    }
-
     baseConfig.appRunCount++
     showAutomaticSupportPromptIfEligible()
 }

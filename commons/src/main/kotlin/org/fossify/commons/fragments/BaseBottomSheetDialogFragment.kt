@@ -1,5 +1,9 @@
 package org.fossify.commons.fragments
 
+import org.fossify.commons.extensions.baseConfig
+import android.graphics.drawable.GradientDrawable
+import org.fossify.commons.helpers.uiColor
+import org.fossify.commons.helpers.UiRole
 import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -21,12 +25,16 @@ abstract class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
         val view = DialogBottomSheetBinding.inflate(inflater, container, false)
         val context = requireContext()
 
-        if (requireContext().isBlackAndWhiteTheme()) {
-            view.root.background = ResourcesCompat.getDrawable(context.resources, R.drawable.bottom_sheet_bg_black, context.theme)
-        } else if (!context.isDynamicTheme()) {
-            view.root.background = ResourcesCompat.getDrawable(context.resources, R.drawable.bottom_sheet_bg, context.theme).apply {
-                (this as LayerDrawable).findDrawableByLayerId(R.id.bottom_sheet_background).applyColorFilter(context.getProperBackgroundColor())
-            }
+        // sk18: a sheet is a dialog — its ground and frame are the dialog roles, the shape is built here
+        val radius = context.resources.getDimension(R.dimen.bottom_sheet_corner_radius)
+        val density = context.resources.displayMetrics.density
+        view.root.background = GradientDrawable().apply {
+            cornerRadii = floatArrayOf(radius, radius, radius, radius, 0f, 0f, 0f, 0f)
+            setColor(context.uiColor(UiRole.DIALOG_GROUND))
+            setStroke(
+                (context.baseConfig.dialogBorderWidth * density).toInt(),
+                context.uiColor(UiRole.DIALOG_FRAME),
+            )
         }
         return view.root
     }
@@ -35,7 +43,7 @@ abstract class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         val title = arguments?.getInt(BOTTOM_SHEET_TITLE).takeIf { it != 0 }
         DialogBottomSheetBinding.bind(view).apply {
-            bottomSheetTitle.setTextColor(view.context.getProperTextColor())
+            bottomSheetTitle.setTextColor(view.context.uiColor(UiRole.DIALOG_TITLE))
             bottomSheetTitle.setTextOrBeGone(title)
             setupContentView(bottomSheetContentHolder)
         }

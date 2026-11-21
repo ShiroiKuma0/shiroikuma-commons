@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Environment
 import android.text.format.DateFormat
-import androidx.core.content.ContextCompat
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import org.fossify.commons.R
@@ -98,19 +97,19 @@ open class BaseConfig(val context: Context) {
     private fun getDefaultInternalPath() = if (prefs.contains(INTERNAL_STORAGE_PATH)) "" else context.getInternalStoragePath()
 
     var textColor: Int
-        get() = prefs.getInt(TEXT_COLOR, ContextCompat.getColor(context, R.color.default_text_color))
+        get() = prefs.getInt(TEXT_COLOR, FAMILY_YELLOW)
         set(textColor) = prefs.edit().putInt(TEXT_COLOR, textColor).apply()
 
     var backgroundColor: Int
-        get() = prefs.getInt(BACKGROUND_COLOR, ContextCompat.getColor(context, R.color.default_background_color))
+        get() = prefs.getInt(BACKGROUND_COLOR, FAMILY_BLACK)
         set(backgroundColor) = prefs.edit().putInt(BACKGROUND_COLOR, backgroundColor).apply()
 
     var primaryColor: Int
-        get() = prefs.getInt(PRIMARY_COLOR, ContextCompat.getColor(context, R.color.default_primary_color))
+        get() = prefs.getInt(PRIMARY_COLOR, FAMILY_YELLOW)
         set(primaryColor) = prefs.edit().putInt(PRIMARY_COLOR, primaryColor).apply()
 
     var accentColor: Int
-        get() = prefs.getInt(ACCENT_COLOR, ContextCompat.getColor(context, R.color.default_accent_color))
+        get() = prefs.getInt(ACCENT_COLOR, primaryColor)
         set(accentColor) = prefs.edit().putInt(ACCENT_COLOR, accentColor).apply()
 
     var lastHandledShortcutColor: Int
@@ -118,14 +117,13 @@ open class BaseConfig(val context: Context) {
         set(lastHandledShortcutColor) = prefs.edit().putInt(LAST_HANDLED_SHORTCUT_COLOR, lastHandledShortcutColor).apply()
 
     var appIconColor: Int
-        get() = prefs.getInt(APP_ICON_COLOR, ContextCompat.getColor(context, R.color.default_app_icon_color))
+        get() = prefs.getInt(APP_ICON_COLOR, primaryColor)
         set(appIconColor) {
-            isUsingModifiedAppIcon = appIconColor != ContextCompat.getColor(context, R.color.color_primary)
             prefs.edit().putInt(APP_ICON_COLOR, appIconColor).apply()
         }
 
     var lastIconColor: Int
-        get() = prefs.getInt(LAST_ICON_COLOR, ContextCompat.getColor(context, R.color.color_primary))
+        get() = prefs.getInt(LAST_ICON_COLOR, primaryColor)
         set(lastIconColor) = prefs.edit().putInt(LAST_ICON_COLOR, lastIconColor).apply()
 
     var customTextColor: Int
@@ -149,11 +147,11 @@ open class BaseConfig(val context: Context) {
         set(customAppIconColor) = prefs.edit().putInt(CUSTOM_APP_ICON_COLOR, customAppIconColor).apply()
 
     var widgetBgColor: Int
-        get() = prefs.getInt(WIDGET_BG_COLOR, ContextCompat.getColor(context, R.color.default_widget_bg_color))
+        get() = prefs.getInt(WIDGET_BG_COLOR, (backgroundColor and 0x00FFFFFF) or WIDGET_GROUND_ALPHA)
         set(widgetBgColor) = prefs.edit().putInt(WIDGET_BG_COLOR, widgetBgColor).apply()
 
     var widgetTextColor: Int
-        get() = prefs.getInt(WIDGET_TEXT_COLOR, ContextCompat.getColor(context, R.color.default_widget_text_color))
+        get() = prefs.getInt(WIDGET_TEXT_COLOR, primaryColor)
         set(widgetTextColor) = prefs.edit().putInt(WIDGET_TEXT_COLOR, widgetTextColor).apply()
 
     // hidden folder visibility protection
@@ -477,11 +475,9 @@ open class BaseConfig(val context: Context) {
     var colorPickerRecentColors: LinkedList<Int>
         get(): LinkedList<Int> {
             val defaultList = arrayListOf(
-                ContextCompat.getColor(context, R.color.md_red_700),
-                ContextCompat.getColor(context, R.color.md_blue_700),
-                ContextCompat.getColor(context, R.color.md_green_700),
-                ContextCompat.getColor(context, R.color.md_yellow_700),
-                ContextCompat.getColor(context, R.color.md_orange_700)
+                // sk18: the picker's "recent colours" start from the two foundation colours, not a stock palette
+                primaryColor,
+                backgroundColor
             )
             return LinkedList(prefs.getString(COLOR_PICKER_RECENT_COLORS, null)?.lines()?.map { it.toInt() } ?: defaultList)
         }
@@ -627,12 +623,40 @@ open class BaseConfig(val context: Context) {
         get() = prefs.getString(CUSTOM_FONT_FILE_NAME, "") ?: ""
         set(customFontFileName) = prefs.edit().putString(CUSTOM_FONT_FILE_NAME, customFontFileName).apply()
 
-    // Fork: accent border drawn around every dialog (width in dp, 0 = no border) and an optional
-    // boxed style for dialog buttons. Defaults keep stock behavior; a consuming app opts in.
-    var dialogBorderColor: Int
-        get() = prefs.getInt(DIALOG_BORDER_COLOR, 0)
-        set(dialogBorderColor) = prefs.edit().putInt(DIALOG_BORDER_COLOR, dialogBorderColor).apply()
+    // shiroikuma (sk18): the colour roles (helpers/UiRoles.kt). The three foundation roles live in the stock
+    // keys above; every other role is stored under its own key and is absent while it follows its default.
+    fun uiRoleOverride(role: UiRole): Int? = when (role) {
+        UiRole.BACKGROUND -> if (prefs.contains(BACKGROUND_COLOR)) backgroundColor else null
+        UiRole.ACCENT -> if (prefs.contains(PRIMARY_COLOR)) primaryColor else null
+        UiRole.TEXT -> if (prefs.contains(TEXT_COLOR)) textColor else null
+        else -> if (prefs.contains(role.prefKey)) prefs.getInt(role.prefKey, 0) else null
+    }
 
+    fun setUiRole(role: UiRole, color: Int) = when (role) {
+        UiRole.BACKGROUND -> backgroundColor = color
+        UiRole.ACCENT -> primaryColor = color
+        UiRole.TEXT -> textColor = color
+        else -> prefs.edit().putInt(role.prefKey, color).apply()
+    }
+
+    fun clearUiRole(role: UiRole) {
+        val key = when (role) {
+            UiRole.BACKGROUND -> BACKGROUND_COLOR
+            UiRole.ACCENT -> PRIMARY_COLOR
+            UiRole.TEXT -> TEXT_COLOR
+            else -> role.prefKey
+        }
+        prefs.edit().remove(key).apply()
+    }
+
+    fun clearAllUiRoles() {
+        val editor = prefs.edit()
+        prefs.all.keys.filter { it.startsWith(UI_ROLE_PREFIX) }.forEach { editor.remove(it) }
+        editor.remove(BACKGROUND_COLOR).remove(PRIMARY_COLOR).remove(TEXT_COLOR).remove(ACCENT_COLOR)
+        editor.apply()
+    }
+
+    // The frame drawn around every dialog: its width in dp (0 = no frame). Its colour is UiRole.DIALOG_FRAME.
     var dialogBorderWidth: Int
         get() = prefs.getInt(DIALOG_BORDER_WIDTH, 0)
         set(dialogBorderWidth) = prefs.edit().putInt(DIALOG_BORDER_WIDTH, dialogBorderWidth).apply()
@@ -645,17 +669,28 @@ open class BaseConfig(val context: Context) {
         get() = prefs.getBoolean(PILL_DIALOG_BUTTONS, false)
         set(pillDialogButtons) = prefs.edit().putBoolean(PILL_DIALOG_BUTTONS, pillDialogButtons).apply()
 
-    // The family's outlined switch (sk17), off: 0 = derived, 55 % of the way from the background to the accent.
+    // The colour mirrors of sk12–sk17, kept so an app that still writes them compiles: each is now a role.
+    // Writing 0 puts the role back on its default.
+    var dialogBorderColor: Int
+        get() = context.uiColor(UiRole.DIALOG_FRAME)
+        set(color) = legacyRole(UiRole.DIALOG_FRAME, color)
+
     var switchOffColor: Int
-        get() = prefs.getInt(SWITCH_OFF_COLOR, 0)
-        set(switchOffColor) = prefs.edit().putInt(SWITCH_OFF_COLOR, switchOffColor).apply()
+        get() = context.uiColor(UiRole.SWITCH_OFF_OUTLINE)
+        set(color) = legacyRole(UiRole.SWITCH_OFF_OUTLINE, color)
 
     var dialogWarningColor: Int
-        get() = prefs.getInt(DIALOG_WARNING_COLOR, 0xFFFF0000.toInt())
-        set(dialogWarningColor) = prefs.edit().putInt(DIALOG_WARNING_COLOR, dialogWarningColor).apply()
+        get() = context.uiColor(UiRole.BUTTON_DESTRUCTIVE)
+        set(color) = legacyRole(UiRole.BUTTON_DESTRUCTIVE, color)
+
+    private fun legacyRole(role: UiRole, color: Int) {
+        if (color == 0) clearUiRole(role) else setUiRole(role, color)
+    }
 
     protected fun <T> KProperty0<T>.asFlow(emitOnCollect: Boolean = false): Flow<T?> =
         prefs.run { sharedPreferencesCallback(sendOnCollect = emitOnCollect) { this@asFlow.get() } }
 
     protected fun <T> KProperty0<T>.asFlowNonNull(emitOnCollect: Boolean = false): Flow<T> = asFlow(emitOnCollect).filterNotNull()
 }
+
+private const val WIDGET_GROUND_ALPHA = 0xAA000000.toInt()

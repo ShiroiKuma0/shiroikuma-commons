@@ -14,7 +14,6 @@ import org.fossify.commons.compose.alert_dialog.dialogContainerColor
 import org.fossify.commons.compose.alert_dialog.dialogElevation
 import org.fossify.commons.compose.theme.LocalTheme
 import org.fossify.commons.compose.theme.Shapes
-import org.fossify.commons.compose.theme.light_grey_stroke
 import org.fossify.commons.compose.theme.model.Theme
 
 val bottomSheetDialogShape = Shapes.extraLarge.copy(
@@ -26,7 +25,7 @@ val bottomSheetDialogShape = Shapes.extraLarge.copy(
 @ReadOnlyComposable
 fun Modifier.bottomSheetDialogBorder(): Modifier =
     when (LocalTheme.current) {
-        is Theme.BlackAndWhite -> this.border(2.dp, light_grey_stroke, bottomSheetDialogShape)
+        is Theme.BlackAndWhite -> this
         else -> this
     }
 

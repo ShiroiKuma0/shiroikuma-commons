@@ -1,5 +1,8 @@
 package org.fossify.commons.compose.screens
 
+import androidx.compose.ui.platform.LocalContext
+import org.fossify.commons.helpers.uiColor
+import org.fossify.commons.helpers.UiRole
 import org.fossify.commons.compose.components.familyLook
 import org.fossify.commons.compose.components.PillButton
 import androidx.activity.compose.BackHandler
@@ -496,11 +499,7 @@ private fun ActionModeToolbar(
 @Composable
 @ReadOnlyComposable
 private fun actionModeBgColor(): Color =
-    if (LocalTheme.current is Theme.SystemDefaultMaterialYou) {
-        SimpleTheme.colorScheme.primaryContainer
-    } else {
-        actionModeColor
-    }
+    Color(LocalContext.current.uiColor(UiRole.ACTION_BAR_GROUND))
 
 
 @Composable

@@ -1,5 +1,7 @@
 package org.fossify.commons.views
 
+import org.fossify.commons.helpers.uiColor
+import org.fossify.commons.helpers.UiRole
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
@@ -16,6 +18,12 @@ open class MyAppCompatSpinner : AppCompatSpinner {
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
 
     constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle)
+
+    // shiroikuma (sk18): the shown value, the arrow and the drop-down's ground from their roles.
+    fun applyRoles() {
+        setColors(context.uiColor(UiRole.SPINNER_TEXT), context.uiColor(UiRole.ACCENT), context.uiColor(UiRole.SPINNER_GROUND))
+        background.applyColorFilter(context.uiColor(UiRole.SPINNER_ARROW))
+    }
 
     fun setColors(textColor: Int, accentColor: Int, backgroundColor: Int) {
         if (adapter == null)

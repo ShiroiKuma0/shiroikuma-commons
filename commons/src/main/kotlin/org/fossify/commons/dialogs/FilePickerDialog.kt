@@ -1,5 +1,7 @@
 package org.fossify.commons.dialogs
 
+import org.fossify.commons.helpers.uiColor
+import org.fossify.commons.helpers.UiRole
 import android.os.Environment
 import android.os.Parcelable
 import android.widget.Toast
@@ -125,7 +127,7 @@ class FilePickerDialog(
         }
 
         mDialogView.filepickerPlaceholder.setTextColor(activity.getProperTextColor())
-        mDialogView.filepickerFastscroller.updateColors(activity.getProperPrimaryColor())
+        mDialogView.filepickerFastscroller.updateColors(activity.uiColor(UiRole.SCROLL_THUMB))
         mDialogView.filepickerFabShowHidden.apply {
             beVisibleIf(!showHidden && canAddShowHiddenButton)
             setOnClickListener {

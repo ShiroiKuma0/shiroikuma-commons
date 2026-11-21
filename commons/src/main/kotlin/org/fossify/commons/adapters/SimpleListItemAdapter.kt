@@ -1,5 +1,8 @@
 package org.fossify.commons.adapters
 
+import org.fossify.commons.extensions.rippleDrawable
+import org.fossify.commons.helpers.uiColor
+import org.fossify.commons.helpers.UiRole
 import android.app.Activity
 import android.view.View
 import android.view.ViewGroup
@@ -44,11 +47,9 @@ open class SimpleListItemAdapter(val activity: Activity, val onItemClicked: (Sim
 
 fun setupSimpleListItem(view: ItemSimpleListBinding, item: SimpleListItem, onItemClicked: (SimpleListItem) -> Unit) {
     view.apply {
-        val color = if (item.selected) {
-            root.context.getProperPrimaryColor()
-        } else {
-            root.context.getProperTextColor()
-        }
+        // sk18: a sheet row reads the dialog's text role, the chosen one the accent; its ripple is built here
+        val color = root.context.uiColor(if (item.selected) UiRole.ACCENT else UiRole.DIALOG_TEXT)
+        if (root.background == null) root.background = root.context.rippleDrawable()
 
         bottomSheetItemTitle.setText(item.textRes)
         bottomSheetItemTitle.setTextColor(color)

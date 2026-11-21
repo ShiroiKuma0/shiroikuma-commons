@@ -1,5 +1,7 @@
 package org.fossify.commons.helpers
 
+import org.fossify.commons.extensions.getColoredDrawableWithColor
+import org.fossify.commons.extensions.circleDrawable
 import android.content.Context
 import android.database.Cursor
 import android.graphics.Bitmap
@@ -330,10 +332,13 @@ class SimpleContactsHelper(val context: Context) {
     }
 
     fun getColoredGroupIcon(title: String): Drawable {
-        val icon = context.resources.getDrawable(R.drawable.ic_group_circle_bg)
+        // sk18: the circle is built here; its colour is the group's own letter colour, the glyph its contrast
         val bgColor = letterBackgroundColors[Math.abs(title.hashCode()) % letterBackgroundColors.size].toInt()
-        (icon as LayerDrawable).findDrawableByLayerId(R.id.attendee_circular_background).applyColorFilter(bgColor)
-        return icon
+        val glyph = context.resources.getColoredDrawableWithColor(R.drawable.ic_people_vector, bgColor.getContrastColor())
+        val margin = context.resources.getDimensionPixelSize(R.dimen.activity_margin)
+        return LayerDrawable(arrayOf(circleDrawable(bgColor), glyph)).apply {
+            setLayerInset(1, margin, margin, margin, margin)
+        }
     }
 
     fun getContactLookupKey(contactId: String): String {

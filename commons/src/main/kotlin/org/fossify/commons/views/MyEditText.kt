@@ -1,5 +1,8 @@
 package org.fossify.commons.views
 
+import org.fossify.commons.extensions.applyFieldCursorRoles
+import org.fossify.commons.helpers.uiColor
+import org.fossify.commons.helpers.UiRole
 import android.content.Context
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatEditText
@@ -25,10 +28,17 @@ open class MyEditText : AppCompatEditText {
         if (!isInEditMode) context.applyFontToTextView(this)
     }
 
+    // shiroikuma (sk18): text, hint, line, cursor and selection each from its own role.
+    fun applyRoles() {
+        background?.mutate()?.applyColorFilter(context.uiColor(UiRole.FIELD_LINE))
+        setTextColor(context.uiColor(UiRole.FIELD_TEXT))
+        setHintTextColor(context.uiColor(UiRole.FIELD_HINT))
+        setLinkTextColor(context.uiColor(UiRole.TEXT_LINK))
+        applyFieldCursorRoles()
+    }
+
     fun setColors(textColor: Int, accentColor: Int, backgroundColor: Int) {
         background?.mutate()?.applyColorFilter(accentColor)
-
-        // requires android:textCursorDrawable="@null" in xml to color the cursor too
         setTextColor(textColor)
         setHintTextColor(textColor.adjustAlpha(MEDIUM_ALPHA))
         setLinkTextColor(accentColor)

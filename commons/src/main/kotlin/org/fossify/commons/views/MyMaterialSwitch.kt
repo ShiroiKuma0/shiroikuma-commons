@@ -1,5 +1,8 @@
 package org.fossify.commons.views
 
+import org.fossify.commons.extensions.checkedStates
+import org.fossify.commons.helpers.uiColor
+import org.fossify.commons.helpers.UiRole
 import android.content.Context
 import android.content.res.ColorStateList
 import android.util.AttributeSet
@@ -42,12 +45,9 @@ open class MyMaterialSwitch : MaterialSwitch {
             trackDecorationDrawable = null
             thumbIconDrawable = null
         }
-        val off = context.baseConfig.switchOffColor.takeIf { it != 0 }
-            ?: ColorUtils.blendARGB(backgroundColor, accentColor, FAMILY_OFF_BLEND)
-        val states = arrayOf(intArrayOf(-android.R.attr.state_checked), intArrayOf(android.R.attr.state_checked))
-        val colors = ColorStateList(states, intArrayOf(off, accentColor))
-        trackTintList = colors
-        thumbTintList = colors
+        // sk18: outline and dot, on and off, are four roles; the arguments are kept for the callers of setColors
+        trackTintList = checkedStates(context.uiColor(UiRole.SWITCH_OFF_OUTLINE), context.uiColor(UiRole.SWITCH_ON_OUTLINE))
+        thumbTintList = checkedStates(context.uiColor(UiRole.SWITCH_OFF_DOT), context.uiColor(UiRole.SWITCH_ON_DOT))
     }
 
     fun setShowCheckmark(showCheckmark: Boolean) {
@@ -63,6 +63,8 @@ open class MyMaterialSwitch : MaterialSwitch {
             setOnCheckedChangeListener(null)
         }
     }
+
+    fun applyRoles() = setColors(context.uiColor(UiRole.SWITCH_LABEL), context.uiColor(UiRole.SWITCH_ON_OUTLINE), context.uiColor(UiRole.BACKGROUND))
 
     fun setColors(textColor: Int, accentColor: Int, backgroundColor: Int) {
         if (familyLook) {

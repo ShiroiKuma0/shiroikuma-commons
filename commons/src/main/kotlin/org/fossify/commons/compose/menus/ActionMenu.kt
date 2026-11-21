@@ -251,6 +251,6 @@ private fun ActionMenuPreview() {
                 ActionItem(R.string.export_blocked_numbers, doAction = { }, overflowMode = OverflowMode.ALWAYS_OVERFLOW),
             ).toImmutableList()
         }
-        ActionMenu(items = actionMenus, numIcons = 2, isMenuVisible = true, onMenuToggle = { }, iconsColor = Color.Black)
+        ActionMenu(items = actionMenus, numIcons = 2, isMenuVisible = true, onMenuToggle = { }, iconsColor = SimpleTheme.colorScheme.onSurface)
     }
 }

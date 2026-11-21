@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- The ground of a home-screen widget. A widget is drawn by the launcher, outside the app's code, so its
+     shape has to be a resource; the app tints it with the widget's own colour. Black is only the base. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
     <corners android:radius="@dimen/normal_margin"/>
-    <solid android:color="@color/md_grey_black"/>
+    <solid android:color="#000000"/>
 </shape>

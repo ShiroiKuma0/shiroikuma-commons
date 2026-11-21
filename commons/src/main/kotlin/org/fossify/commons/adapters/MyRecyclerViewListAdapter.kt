@@ -1,5 +1,10 @@
 package org.fossify.commons.adapters
 
+import org.fossify.commons.extensions.applyRippleRoles
+import org.fossify.commons.extensions.rowSelectorDrawable
+import org.fossify.commons.extensions.listDividerDrawable
+import org.fossify.commons.helpers.uiColor
+import org.fossify.commons.helpers.UiRole
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -89,14 +94,15 @@ abstract class MyRecyclerViewListAdapter<T>(
                 // Fork: the same black/yellow contextual action bar as MyRecyclerViewAdapter (sk4–sk5) —
                 // app background for the bar, accent for the title, menu icons, back arrow and overflow
                 // dots — in every theme mode. This list-adapter twin was missed then (sk8).
-                val cabIconColor = properPrimaryColor
-                actBarTextView!!.setTextColor(cabIconColor)
+                // sk18: ground, text and icons of the selection bar are three roles
+                val cabIconColor = activity.uiColor(UiRole.ACTION_BAR_ICON)
+                actBarTextView!!.setTextColor(activity.uiColor(UiRole.ACTION_BAR_TEXT))
                 activity.updateMenuItemColors(menu, iconColor = cabIconColor)
                 onActionModeCreated()
 
                 actBarTextView?.onGlobalLayout {
                     activity.findViewById<ViewGroup>(androidx.appcompat.R.id.action_mode_bar)?.let { bar ->
-                        bar.setBackgroundColor(backgroundColor)
+                        bar.setBackgroundColor(activity.uiColor(UiRole.ACTION_BAR_GROUND))
                         tintActionModeImageViews(bar, cabIconColor)
                     }
                     activity.findViewById<ImageView>(androidx.appcompat.R.id.action_mode_close_button)
@@ -296,7 +302,7 @@ abstract class MyRecyclerViewListAdapter<T>(
 
         if (add) {
             DividerItemDecoration(activity, DividerItemDecoration.VERTICAL).apply {
-                setDrawable(resources.getDrawable(R.drawable.divider))
+                setDrawable(activity.listDividerDrawable())
                 recyclerView.addItemDecoration(this)
             }
         }
@@ -341,6 +347,13 @@ abstract class MyRecyclerViewListAdapter<T>(
     }
 
     open inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        init {
+            // sk18: a row that brings no ground of its own gets the selectable one, built from the list roles
+            // (selected row, pressed row) — the row layouts no longer name a drawable with colours in it.
+            if (view.background == null) view.background = activity.rowSelectorDrawable()
+            view.applyRippleRoles()
+        }
+
         fun bindView(item: T, allowSingleClick: Boolean, allowLongClick: Boolean, callback: (itemView: View, adapterPosition: Int) -> Unit): View {
             return itemView.apply {
                 callback(this, adapterPosition)

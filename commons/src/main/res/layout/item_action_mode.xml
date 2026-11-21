@@ -9,5 +9,4 @@
     android:contentDescription="@null"
     android:minWidth="@dimen/cab_item_min_width"
     android:padding="@dimen/normal_margin"
-    tools:src="@drawable/ic_rename_vector"
-    tools:tint="@color/color_primary" />
+    tools:src="@drawable/ic_rename_vector" />

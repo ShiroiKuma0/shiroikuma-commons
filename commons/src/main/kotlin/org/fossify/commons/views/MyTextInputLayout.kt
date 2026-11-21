@@ -1,5 +1,8 @@
 package org.fossify.commons.views
 
+import org.fossify.commons.extensions.applyFieldCursorRoles
+import org.fossify.commons.helpers.uiColor
+import org.fossify.commons.helpers.UiRole
 import android.content.Context
 import android.content.res.ColorStateList
 import android.util.AttributeSet
@@ -27,6 +30,35 @@ open class MyTextInputLayout : TextInputLayout {
         if (isInEditMode) return
         val customTypeface = FontHelper.getTypeface(context)
         typeface = customTypeface
+    }
+
+    // shiroikuma (sk18): text, hint, label, box line (idle and focused) and cursor each from its own role.
+    fun applyRoles() {
+        val text = context.uiColor(UiRole.FIELD_TEXT)
+        val hint = context.uiColor(UiRole.FIELD_HINT)
+        val label = context.uiColor(UiRole.FIELD_LABEL)
+        val line = context.uiColor(UiRole.FIELD_LINE)
+        val idle = context.uiColor(UiRole.FIELD_LINE_IDLE)
+        editText?.apply {
+            setTextColor(text)
+            setHintTextColor(hint)
+            backgroundTintList = ColorStateList.valueOf(line)
+            applyFieldCursorRoles()
+        }
+        defaultHintTextColor = ColorStateList.valueOf(hint)
+        hintTextColor = ColorStateList.valueOf(label)
+        setBoxStrokeColorStateList(
+            ColorStateList(
+                arrayOf(intArrayOf(android.R.attr.state_focused), intArrayOf()),
+                intArrayOf(line, idle),
+            )
+        )
+        setEndIconTintList(ColorStateList.valueOf(hint))
+        setStartIconTintList(ColorStateList.valueOf(hint))
+        setHelperTextColor(ColorStateList.valueOf(text))
+        placeholderTextColor = ColorStateList.valueOf(hint)
+        prefixTextView.setTextColor(text)
+        suffixTextView.setTextColor(text)
     }
 
     // we need to use reflection to make some colors work well

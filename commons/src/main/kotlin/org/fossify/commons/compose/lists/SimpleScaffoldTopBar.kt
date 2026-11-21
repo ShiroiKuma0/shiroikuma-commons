@@ -196,12 +196,12 @@ private fun SimpleScaffoldTopBarPreview() {
     AppThemeSurface {
         SimpleScaffoldTopBar(
             title = "SettingsScaffoldTopBar",
-            scrolledColor = Color.Black,
+            scrolledColor = SimpleTheme.colorScheme.onSurface,
             navigationIconInteractionSource = rememberMutableInteractionSource(),
             goBack = {},
-            statusBarColor = Color.Magenta.toArgb(),
+            statusBarColor = SimpleTheme.colorScheme.surface.toArgb(),
             colorTransitionFraction = 1.0f,
-            contrastColor = Color.White
+            contrastColor = SimpleTheme.colorScheme.onSurface
         )
     }
 }
