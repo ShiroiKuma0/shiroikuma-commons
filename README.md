@@ -4,13 +4,19 @@
 
 **The patched Fossify Commons that powers the `shiroikuma.*` app forks.**
 
-A fork of [Fossify Commons](https://github.com/FossifyOrg/Commons) with **major additions**: the anti-tamper “fake version” machinery removed entirely, fork-package compatibility fixes for renamed app ids, **every colour a role an app can set — none written in XML**, date and time pickers drawn in code, swipe to call, pill buttons and outlined switches, complete contact fields, and theme-styled toasts.
+A fork of [Fossify Commons](https://github.com/FossifyOrg/Commons) with **major additions**: the anti-tamper “fake version” machinery removed entirely, fork-package compatibility fixes for renamed app ids, **every colour a role an app can set — none written in XML**, date and time pickers drawn in code, swipe to call, pill buttons and outlined switches, complete contact fields, theme-styled toasts, and no timed rating or donation prompt.
 
-Consumed from **mavenLocal** by the 白い熊 forks (denwa, messeji, renrakusaki, yotehyo, …) as `org.fossify:commons:<upstream>-skN`.
+Consumed from **mavenLocal** by the 白い熊 forks (denwa, messeji, renrakusaki, yotehyo, …) as `org.fossify:commons:<upstream>-skN`. Two lines are kept: `7.1.3-skN` on branch `custom`, and `6.1.6-skN` on branch `custom-6.1.6` for the apps whose upstream has not moved to Commons 7 yet.
 
-**📥 Latest release: [`6.1.6-sk19`](https://github.com/ShiroiKuma0/shiroikuma-commons/releases/latest)** — [all releases »](https://github.com/ShiroiKuma0/shiroikuma-commons/releases)
+**📥 Latest release: [`7.1.3-sk1`](https://github.com/ShiroiKuma0/shiroikuma-commons/releases/latest)** — [all releases »](https://github.com/ShiroiKuma0/shiroikuma-commons/releases)
 
 </div>
+
+---
+
+## 🔕 Commons 7, without the nagging (7.1.3-sk1)
+
+Every patch of `6.1.6-sk1`–`sk19` replayed onto Fossify Commons `7.1.3`. Commons 7 added a timed support prompt — a rating request after 5 days on Play builds, a donation request after 10 days elsewhere; here `showAutomaticSupportPromptIfEligible()` does nothing, so an app built on this library never asks.
 
 ---
 
@@ -46,7 +52,7 @@ Opt-in through `pillDialogButtons`: dialog buttons are outlined pills (thick fra
 
 ## 🔓 Anti-tamper checks removed (sk1)
 
-Upstream Commons 6.1.x shows a blocking “You are using a fake version of the app…” dialog — and silently breaks the “Customize colors” screen — whenever the installed package id is not `org.fossify.*`, which is always the case for a renamed fork. This fork deletes that machinery entirely (dialog, compose `FakeVersionCheck`, the `BaseSimpleActivity` and `CustomizationActivity` guards), so forks run clean with no in-app workarounds.
+Upstream Commons shows a blocking “You are using a fake version of the app…” dialog — and silently breaks the “Customize colors” screen — whenever the installed package id is not `org.fossify.*`, which is always the case for a renamed fork. This fork deletes that machinery entirely (dialog, compose `FakeVersionCheck`, the `BaseSimpleActivity` and `CustomizationActivity` guards), so forks run clean with no in-app workarounds.
 
 ---
 

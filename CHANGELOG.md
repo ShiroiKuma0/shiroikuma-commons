@@ -3,6 +3,31 @@
 This file carries the history of the 白い熊 Commons fork. Upstream Fossify Commons keeps no changelog file;
 its releases are listed at https://github.com/FossifyOrg/Commons/releases.
 
+## 白い熊 Commons 7.1.3-sk1 — 2026-11-22
+
+Built on Fossify Commons `7.1.3`. Everything since `6.1.6-sk19`; the `-skN` counter restarts with the new base.
+
+### The new base
+
+- **Every patch of `6.1.6-sk1`–`sk19` replayed onto the upstream `7.1.3` tag** — the anti-tamper removal, the fork-package fixes, the colour roles and the single theme, the date and time pickers, the pills, switches and floating button, swipe to call and the call formats, `Contact.extra`, private contacts from the 白い熊 連絡先 provider, the themed toasts. Nothing of the fork’s own behaviour changes.
+- Published as `org.fossify:commons:7.1.3-sk1`. First consumer: 白い熊 メッセージ, for its move to upstream Messages 1.10.3.
+- The `6.1.6` line stays alive as the branch `custom-6.1.6`, frozen at `6.1.6-sk19`, for the apps whose upstream has not moved to Commons 7. Their AARs stay in `~/.m2`, and an app pinned to `6.1.6-skN` is unaffected until it moves its pin.
+
+### No timed support prompt
+
+- Commons 7 added `extensions/SupportPrompt.kt`: a rating prompt after 5 days on Play builds, a donation prompt after 10 days elsewhere. **`showAutomaticSupportPromptIfEligible()` is a no-op in this fork** — both call sites (`Activity.kt`, the Compose `ActivityExtensions.kt`) still call it and nothing is shown.
+
+### What Commons 7 brings and takes away
+
+- **The “thank you” feature locks are gone upstream**: `FeatureLockedDialog`, `UpgradeToProDialog`, `dialog_feature_locked.xml`, `isOrWasThankYouInstalled`, `addLockedLabelIfNeeded`. The fork’s edits to those files (the pill buttons and roles of sk12–sk18 there) are dropped with them. **An app that still calls them must follow its own upstream’s “migrate to commons 7” change before moving its pin.**
+- The `hide_google_relations` bool is replaced by `is_google_play_build`, with the opposite meaning.
+- Upstream’s simplified support prompts and app flags, the Compose “thank you” row, the storage-unit customization, more library licence metadata, the purchase and translation help links corrected, an unsafe `List`-to-`ArrayList` cast removed, the Glide Compose library dropped, and the translations of 6.1.6 → 7.1.3.
+
+### Removed again after the rebase
+
+- `CustomizationActivity` (*Customize colors*), which came back modified upstream — the colour roles replace it.
+- `.github/` (workflows and dependabot), which every upstream tag reintroduces — this fork is built locally and runs no CI.
+
 ## 白い熊 Commons 6.1.6-sk19 — 2026-11-21
 
 Built on Fossify Commons `6.1.6`. Everything since `6.1.6-sk6`.
