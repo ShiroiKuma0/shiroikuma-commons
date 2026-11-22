@@ -79,13 +79,13 @@ Toasts raised through `Context.toast()` use a custom view — ground, text and a
 
 ## Versioning & publishing
 
-The `-skN` suffix is the fork’s patch revision on top of an upstream tag (currently based on `6.1.6`). Publish to the local Maven repo with:
+The `-skN` suffix is the fork’s patch revision on top of an upstream tag (currently based on `7.1.3`). Publish to the local Maven repo with:
 
 ```bash
-JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :commons:publishToMavenLocal -PVERSION=6.1.6-sk19
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :commons:publishToMavenLocal -PVERSION=7.1.3-sk1
 ```
 
-Consuming apps pin `commons = "6.1.6-sk19"` in their `gradle/libs.versions.toml` (`mavenLocal()` must be in their repositories). See `CLAUDE.md` for the full patch documentation and the rebase procedure for new upstream tags.
+Consuming apps pin `commons = "7.1.3-sk1"` in their `gradle/libs.versions.toml` (`mavenLocal()` must be in their repositories). See `CLAUDE.md` for the full patch documentation and the rebase procedure for new upstream tags.
 
 ## Built on Fossify Commons
 

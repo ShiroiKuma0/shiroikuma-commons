@@ -18,7 +18,9 @@ install under `shiroikuma.*` ids rather than `org.fossify.*`) work correctly. Tw
 
 - `origin` → `git@github.com:ShiroiKuma0/shiroikuma-commons` — our fork (push here).
 - `upstream` → `https://github.com/FossifyOrg/Commons.git` — the original (read-only, for rebasing).
-- `custom` — our working branch, based on an upstream **tag** (currently `6.1.6`). All our changes live here.
+- `custom` — our working branch, based on an upstream **tag** (currently `7.1.3`). All our changes live here.
+- `custom-6.1.6` — the previous line, frozen at `6.1.6-sk19`, kept for the apps whose upstream has not
+  moved to Commons 7 yet. A fix such an app needs goes there as `6.1.6-sk20`, … **and** on `custom`.
 
 ## The anti-tamper patch (branch `custom`)
 
@@ -163,6 +165,22 @@ and bump each app's `commons` pin.
 
 A new upstream tag will **reintroduce** the `.github/` directory (workflows + dependabot). Delete it
 again as part of the rebase — see "No CI / GitHub Actions" above.
+
+## Commons 7 (`7.1.3-sk1`, 2026-11-22)
+
+Re-cut for shiroikuma-messeji's move to upstream Messages 1.10.3: every patch of `6.1.6-sk1`–`sk19`
+replayed onto the `7.1.3` tag, published as `7.1.3-sk1`. What the new base changed for us:
+
+- **Upstream removed the "thank you" feature locks** — `FeatureLockedDialog`, `UpgradeToProDialog`,
+  `dialog_feature_locked.xml`, `isOrWasThankYouInstalled`, `addLockedLabelIfNeeded`, and the
+  `hide_google_relations` bool (now `is_google_play_build`, inverted). Our edits to those files are
+  dropped with them. An app still calling them must follow its own upstream's "migrate to commons 7"
+  change before moving its pin.
+- **Upstream added a timed support prompt** (`extensions/SupportPrompt.kt`: rating after 5 days on Play
+  builds, donation after 10 days elsewhere). The fork never nags:
+  `showAutomaticSupportPromptIfEligible()` is a no-op here. **Re-apply when rebasing.**
+- `CustomizationActivity` and `.github/` came back modified upstream and are deleted again.
+- Apps pinned to `6.1.6-skN` are unaffected until they move their pin; their AARs stay in `~/.m2`.
 
 ## Commit convention — no Claude attribution
 
