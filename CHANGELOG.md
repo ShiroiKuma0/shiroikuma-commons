@@ -3,6 +3,14 @@
 This file carries the history of the 白い熊 Commons fork. Upstream Fossify Commons keeps no changelog file;
 its releases are listed at https://github.com/FossifyOrg/Commons/releases.
 
+## 白い熊 Commons 7.1.3-sk2 — 2026-11-23
+
+### Japanese, complete
+
+- **The 16 strings that Commons 7 added without a Japanese entry are translated** — the rating and donation prompts, “Other help” and the introduction on the contributors screen, five language names (Breton, Chuvash, Gujarati, Kabyle, Latvian) and six third-party library titles. An app set to 日本語 no longer shows English lines between Japanese ones.
+- The key sets of `values` and `values-ja` now match, strings that are not translatable excepted.
+- Published as `org.fossify:commons:7.1.3-sk2`.
+
 ## 白い熊 Commons 7.1.3-sk1 — 2026-11-22
 
 Built on Fossify Commons `7.1.3`. Everything since `6.1.6-sk19`; the `-skN` counter restarts with the new base.

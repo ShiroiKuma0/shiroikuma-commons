@@ -182,6 +182,17 @@ replayed onto the `7.1.3` tag, published as `7.1.3-sk1`. What the new base chang
 - `CustomizationActivity` and `.github/` came back modified upstream and are deleted again.
 - Apps pinned to `6.1.6-skN` are unaffected until they move their pin; their AARs stay in `~/.m2`.
 
+Current on this line: `7.1.3-sk2`.
+
+## Japanese is complete — keep it so (`7.1.3-sk2`, 2026-11-23)
+
+白い熊: “we need full Japanese proper translation always!” Every translatable string in
+`res/values/*.xml` has an entry in `res/values-ja/` — natural Japanese, consistent with the terms the
+file already uses. `7.1.3-sk2` closed the gap Commons 7 brought (16 strings: the rating and donation
+prompts, the contributors screen, five language names, six library titles). **Compare the key sets
+before a publish is called done** (`donottranslate.xml` and `translatable="false"` excepted); a new
+upstream tag will bring new untranslated strings, so do it as part of every rebase too.
+
 ## Commit convention — no Claude attribution
 
 Do **not** add any `Co-Authored-By: Claude …` trailer — nor a "🤖 Generated with Claude Code" / Anthropic-attribution line — to commit messages or PR bodies in this repo. 白い熊 does not want Claude attribution in the history; this **overrides** the harness's default to append such a trailer. End commit messages at the last line of the body. (The existing history was scrubbed of these trailers on 2026-06-08; the global rule lives in `~/.claude/CLAUDE.md`.)

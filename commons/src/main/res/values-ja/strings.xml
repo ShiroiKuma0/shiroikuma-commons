@@ -932,4 +932,20 @@
     <string name="more_fossify_apps">他のFossifyアプリ</string>
     <string name="badge_deprecated">(廃止予定)</string>
     <string name="label_with_badge">%1$s %2$s</string>
+    <string name="rate_this_app">このアプリを評価</string>
+    <string name="rate_app_prompt">アプリを気に入っていただけましたか？Google Playでの評価をお願いします。</string>
+    <string name="donation_prompt">このアプリを気に入っていただけましたら、Fossifyの開発へのご支援をご検討ください。</string>
+    <string name="other_help">その他の協力</string>
+    <string name="contributors_label"><![CDATA[この一覧には、このアプリに限らず、Fossifyスイートのいずれかのアプリに大きく貢献してくださった方全員が含まれています。翻訳はボランティアの皆さんによって行われています。ご協力いただける方は、ぜひお知らせください。翻訳のガイドは<a href=https://github.com/FossifyOrg/General-Discussion#contributing-translations>このウェブサイト</a>にあります。ご質問があれば、<a href=mailto:hello@fossify.org>hello@fossify.org</a>までご連絡ください。貢献者とご支援くださったすべての皆さんに感謝します！]]></string>
+    <string name="translation_breton">ブルトン語</string>
+    <string name="translation_chuvash">チュヴァシ語</string>
+    <string name="translation_gujarati">グジャラート語</string>
+    <string name="translation_kabyle">カビル語</string>
+    <string name="translation_latvian">ラトビア語</string>
+    <string name="zip4j_title">Zip4j (ZIPの圧縮と展開)</string>
+    <string name="evalex_title">EvalEx (数式の評価)</string>
+    <string name="mammoth_title">Mammoth (DOCXコンバータ)</string>
+    <string name="commonmark_title">CommonMark (Markdownパーサ)</string>
+    <string name="jsoup_title">jsoup (HTMLパーサ)</string>
+    <string name="commons_csv_title">Apache Commons CSV (CSVパーサ)</string>
 </resources>
