@@ -3,6 +3,11 @@
 This file carries the history of the 白い熊 Commons fork. Upstream Fossify Commons keeps no changelog file;
 its releases are listed at https://github.com/FossifyOrg/Commons/releases.
 
+## 白い熊 Commons 7.1.3-sk4 — 2026-11-26
+
+- **The two switch rows of the blocked-numbers screen are as tall as their content** — the switch or the text, with 2 dp above and below — instead of Material’s 56 dp list item. Under `BaseConfig.pillDialogButtons` only.
+- Published as `org.fossify:commons:7.1.3-sk4`.
+
 ## 白い熊 Commons 7.1.3-sk3 — 2026-11-26
 
 ### The blocked-numbers screen, in the family's look

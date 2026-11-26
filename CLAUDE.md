@@ -182,7 +182,7 @@ replayed onto the `7.1.3` tag, published as `7.1.3-sk1`. What the new base chang
 - `CustomizationActivity` and `.github/` came back modified upstream and are deleted again.
 - Apps pinned to `6.1.6-skN` are unaffected until they move their pin; their AARs stay in `~/.m2`.
 
-Current on this line: `7.1.3-sk3`.
+Current on this line: `7.1.3-sk4`.
 
 ## Japanese is complete — keep it so (`7.1.3-sk2`, 2026-11-23)
 
@@ -346,6 +346,7 @@ black-yellow skill”. Everything here is under `BaseConfig.pillDialogButtons`; 
   `menu_icon_block`, `menu_destructive`, `list_text`, `list_text_secondary`, `list_row_alt`,
   `list_box_frame`, `list_box_heading`. An app that has menu icon slots of its own for the same
   meanings maps them onto these, so one colour is set in one place.
-- `SettingsSwitchComponent` takes an optional `icon` / `iconColor`.
+- `SettingsSwitchComponent` takes an optional `icon` / `iconColor`. From `7.1.3-sk4` it is, under the
+  family's look, a plain row as tall as its content with 2 dp above and below, not a 56 dp `ListItem`.
 
 Not checked on a device. **Re-apply when rebasing.**

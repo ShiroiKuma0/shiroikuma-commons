@@ -5,7 +5,13 @@ import org.fossify.commons.compose.components.OutlinedPillSwitch
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -40,6 +46,37 @@ fun SettingsSwitchComponent(
 ) {
     val interactionSource = rememberMutableInteractionSource()
     val indication = LocalIndication.current
+
+    // Fork (7.1.3-sk4): under the family's look the row is as tall as its content — the 28 dp switch or
+    // the text — with 2 dp above and below, never Material's 56 dp list item.
+    if (familyLook()) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .clickable(
+                    enabled = isPreferenceEnabled,
+                    onClick = { onChange?.invoke(!initialValue) },
+                    interactionSource = interactionSource,
+                    indication = indication
+                )
+                .padding(horizontal = 16.dp, vertical = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (icon != null) {
+                Icon(imageVector = icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(20.dp))
+                Spacer(Modifier.width(12.dp))
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = label, color = preferenceLabelColor(isEnabled = isPreferenceEnabled), style = MaterialTheme.typography.bodyLarge)
+                if (!value.isNullOrBlank()) {
+                    Text(text = value, color = preferenceValueColor(isEnabled = isPreferenceEnabled), style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+            Spacer(Modifier.width(12.dp))
+            OutlinedPillSwitch(checked = initialValue, onCheckedChange = { onChange?.invoke(it) }, enabled = isPreferenceEnabled)
+        }
+        return
+    }
 
     ListItem(
         modifier = modifier
