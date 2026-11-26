@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -29,6 +30,7 @@ import org.fossify.commons.R
 import org.fossify.commons.compose.alert_dialog.dialogBorder
 import org.fossify.commons.compose.alert_dialog.dialogContainerColor
 import org.fossify.commons.compose.components.SimpleDropDownMenuItem
+import org.fossify.commons.compose.components.familyLook
 import org.fossify.commons.compose.extensions.MyDevices
 import org.fossify.commons.compose.extensions.rememberMutableInteractionSource
 import org.fossify.commons.compose.theme.AppThemeSurface
@@ -50,7 +52,12 @@ data class ActionItem(
     val icon: ImageVector? = null,
     val overflowMode: OverflowMode = OverflowMode.IF_NECESSARY,
     val doAction: () -> Unit,
-    val iconColor: Color? = null
+    val iconColor: Color? = null,
+    // Fork (7.1.3-sk3): how the row is drawn in the family's overflow menu
+    val role: MenuIconRole = MenuIconRole.VIEW,
+    val opens: Boolean = false,
+    val destructive: Boolean = false,
+    val overflowIcon: ImageVector? = icon,
 ) {
     // allow 'calling' the action like a function
     operator fun invoke() = doAction()
@@ -141,7 +148,27 @@ fun ActionMenu(
                 Icon(imageVector = Icons.Default.MoreVert, contentDescription = stringResource(id = R.string.more_options))
             }
         }
-        DropdownMenu(
+        // Fork (7.1.3-sk3): under the family's look the overflow is a menu of full-width icon pills
+        if (familyLook()) FamilyDropdownMenu(
+            expanded = isMenuVisible,
+            onDismissRequest = { onMenuToggle(false) },
+        ) {
+            for (item in overflowActions) {
+                key(item.hashCode()) {
+                    FamilyMenuRow(
+                        text = stringResource(item.nameRes),
+                        icon = item.overflowIcon ?: Icons.Default.ChevronRight,
+                        iconRole = item.role,
+                        opens = item.opens,
+                        destructive = item.destructive,
+                        onClick = {
+                            onMenuToggle(false)
+                            item.doAction()
+                        },
+                    )
+                }
+            }
+        } else DropdownMenu(
             modifier = Modifier
                 .background(dialogContainerColor)
                 .dialogBorder(),

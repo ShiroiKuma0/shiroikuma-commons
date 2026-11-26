@@ -24,12 +24,16 @@ const val FAMILY_BLACK = 0xFF000000.toInt()
 
 /** Colours that carry meaning keep their settled defaults. */
 private const val FAMILY_RED = 0xFFFF0000.toInt()
+private const val FAMILY_ORANGE = 0xFFFF8000.toInt()
+private const val FAMILY_ROSE = 0xFFFF3D7F.toInt()
 
 private const val SWITCH_OFF_BLEND = 0.55f
 private const val DIVIDER_BLEND = 0.7f
 private const val HINT_BLEND = 0.5f
 private const val MARK_OFF_BLEND = 0.6f
 private const val SELECTED_BLEND = 0.27f
+private const val ROW_ALT_BLEND = 0.07f
+private const val SECONDARY_BLEND = 0.7f
 private const val SELECTION_ALPHA = 0x66
 
 enum class UiRoleSection(@StringRes val labelRes: Int) {
@@ -149,11 +153,22 @@ enum class UiRole(
     MENU_LABEL("menu_label", UiRoleSection.MENUS, R.string.ui_role_menu_label, { text }),
     MENU_ROW_FRAME("menu_row_frame", UiRoleSection.MENUS, R.string.ui_role_menu_row_frame, { accent }),
     MENU_DIVIDER("menu_divider", UiRoleSection.MENUS, R.string.ui_role_menu_divider, { toward(accent, DIVIDER_BLEND) }),
+    // 7.1.3-sk3: the icon roles of the commons' own Compose menus — an icon is coloured by what its row does
+    MENU_ICON_VIEW("menu_icon_view", UiRoleSection.MENUS, R.string.ui_role_menu_icon_view, { accent }),
+    MENU_ICON_SHARE("menu_icon_share", UiRoleSection.MENUS, R.string.ui_role_menu_icon_share, { FAMILY_ORANGE }),
+    MENU_ICON_BLOCK("menu_icon_block", UiRoleSection.MENUS, R.string.ui_role_menu_icon_block, { FAMILY_ROSE }),
+    MENU_DESTRUCTIVE("menu_destructive", UiRoleSection.MENUS, R.string.ui_role_menu_destructive, { of(BUTTON_DESTRUCTIVE) }),
 
     // Lists
     LIST_DIVIDER("list_divider", UiRoleSection.LISTS, R.string.ui_role_list_divider, { toward(accent, DIVIDER_BLEND) }),
     LIST_SELECTED("list_selected", UiRoleSection.LISTS, R.string.ui_role_list_selected, { toward(accent, SELECTED_BLEND) }),
     LIST_PRESSED("list_pressed", UiRoleSection.LISTS, R.string.ui_role_list_pressed, { toward(accent, SELECTED_BLEND) }),
+    // 7.1.3-sk3: a list the commons draws by itself (the blocked numbers)
+    LIST_TEXT("list_text", UiRoleSection.LISTS, R.string.ui_role_list_text, { text }),
+    LIST_TEXT_SECONDARY("list_text_secondary", UiRoleSection.LISTS, R.string.ui_role_list_text_secondary, { toward(text, SECONDARY_BLEND) }),
+    LIST_ROW_ALT("list_row_alt", UiRoleSection.LISTS, R.string.ui_role_list_row_alt, { toward(accent, ROW_ALT_BLEND) }),
+    LIST_BOX_FRAME("list_box_frame", UiRoleSection.LISTS, R.string.ui_role_list_box_frame, { accent }),
+    LIST_BOX_HEADING("list_box_heading", UiRoleSection.LISTS, R.string.ui_role_list_box_heading, { text }),
     SCROLL_THUMB("scroll_thumb", UiRoleSection.LISTS, R.string.ui_role_scroll_thumb, { accent }),
     SCROLL_BUBBLE("scroll_bubble", UiRoleSection.LISTS, R.string.ui_role_scroll_bubble, { accent }),
     SCROLL_BUBBLE_TEXT("scroll_bubble_text", UiRoleSection.LISTS, R.string.ui_role_scroll_bubble_text, { background }),

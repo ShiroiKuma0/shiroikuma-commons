@@ -17,8 +17,11 @@ internal fun Modifier.listDragHandlerLongKey(
     autoScrollThreshold: Float,
     dragUpdate: (Boolean) -> Unit,
     ids: List<Long>,
-    isScrollingUp: Boolean
+    isScrollingUp: Boolean,
+    // Fork (7.1.3-sk3): a list whose rows hold several entries says by itself which one is under the finger
+    keyAt: ((Offset) -> Long?)? = null,
 ) = pointerInput(Unit) {
+    val hit: (Offset) -> Long? = { point -> if (keyAt != null) keyAt(point) else lazyListState.itemKeyAtPosition(point) }
 
     var initialKey: Long? = null
     var currentKey: Long? = null
@@ -30,7 +33,7 @@ internal fun Modifier.listDragHandlerLongKey(
     detectDragGesturesAfterLongPress(
         onDragStart = { offset ->
             dragUpdate(true)
-            lazyListState.itemKeyAtPosition(offset)?.let { key ->
+            hit(offset)?.let { key ->
                 if (!selectedIds.value.contains(key)) {
                     haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                     initialKey = key
@@ -51,7 +54,7 @@ internal fun Modifier.listDragHandlerLongKey(
                     else -> 0f
                 }
 
-                lazyListState.itemKeyAtPosition(change.position)?.let { key ->
+                hit(change.position)?.let { key ->
                     if (currentKey != key) {
                         val toSelect = if (selectedIds.value.contains(key) && ids.isNotEmpty()) {
                             val successor = ids.indexOf(key) + if (isScrollingUp) +1 else -1

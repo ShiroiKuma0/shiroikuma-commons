@@ -182,7 +182,7 @@ replayed onto the `7.1.3` tag, published as `7.1.3-sk1`. What the new base chang
 - `CustomizationActivity` and `.github/` came back modified upstream and are deleted again.
 - Apps pinned to `6.1.6-skN` are unaffected until they move their pin; their AARs stay in `~/.m2`.
 
-Current on this line: `7.1.3-sk2`.
+Current on this line: `7.1.3-sk3`.
 
 ## Japanese is complete — keep it so (`7.1.3-sk2`, 2026-11-23)
 
@@ -324,3 +324,28 @@ Commons tag re-applies it as a whole.**
   `showDays` (off = a month-and-year picker) and `showMonth` (off = a year picker).
 
 Consumers: yotehyo and messeji from `sk19`.
+
+## The blocked-numbers screen and the Compose pill menu (`7.1.3-sk3`, 2026-11-26)
+
+白い熊, on 電話's screen: “very ugly page, remove the line padding”, and both dropdowns “must respect
+black-yellow skill”. Everything here is under `BaseConfig.pillDialogButtons`; off, the screen is stock.
+
+- **`compose/menus/FamilyMenu.kt`**: `FamilyDropdownMenu` (panel from `MENU_GROUND` / `MENU_FRAME`) and
+  `FamilyMenuRow` (a full-width 1.25 dp pill, icon inside at the left coloured by `MenuIconRole` —
+  `VIEW`, `SHARE`, `BLOCK` — a › when `opens`, the `MENU_DESTRUCTIVE` red when `destructive`).
+  `ActionItem` gained `role`, `opens`, `destructive` and `overflowIcon`, and `ActionMenu` draws its
+  overflow with these rows. **A new Compose menu in the commons uses these, never `DropdownMenu`.**
+- **`compose/screens/ManageBlockedNumbersScreen.kt`**: `FamilyBlockedNumbers` — the outlined box with
+  “Blocked numbers (N)” on its top edge, rows chunked into one or two columns (two from 520 dp of screen
+  width), every second row in `LIST_ROW_ALT`, a 1 px `LIST_DIVIDER` between rows. A row is as tall as
+  its text plus 2 dp above and below. Numbers are shown through `formatBlockedNumber`
+  (`+420-222-292-055`, hyphens by 白い熊's word); only a plain number is formatted, and copying copies
+  the stored one. The drag-to-select handler (`compose/extensions/DragHandler.kt`) takes a `keyAt`
+  callback, because a list item is now a row of up to two numbers.
+- **Roles added** (keys are stored — never rename): `menu_icon_view`, `menu_icon_share`,
+  `menu_icon_block`, `menu_destructive`, `list_text`, `list_text_secondary`, `list_row_alt`,
+  `list_box_frame`, `list_box_heading`. An app that has menu icon slots of its own for the same
+  meanings maps them onto these, so one colour is set in one place.
+- `SettingsSwitchComponent` takes an optional `icon` / `iconColor`.
+
+Not checked on a device. **Re-apply when rebasing.**

@@ -12,6 +12,9 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import org.fossify.commons.compose.extensions.BooleanPreviewParameterProvider
 import org.fossify.commons.compose.extensions.MyDevices
@@ -30,7 +33,10 @@ fun SettingsSwitchComponent(
     isPreferenceEnabled: Boolean = true,
     showCheckmark: Boolean,
     onChange: ((Boolean) -> Unit)? = null,
-    switchColors: SwitchColors = SwitchDefaults.colors()
+    switchColors: SwitchColors = SwitchDefaults.colors(),
+    // Fork (7.1.3-sk3): a row icon, coloured by what the row does
+    icon: ImageVector? = null,
+    iconColor: Color = Color.Unspecified,
 ) {
     val interactionSource = rememberMutableInteractionSource()
     val indication = LocalIndication.current
@@ -51,6 +57,9 @@ fun SettingsSwitchComponent(
         headlineContent = {
             Text(text = label)
         },
+        leadingContent = if (icon != null) {
+            { Icon(imageVector = icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(20.dp)) }
+        } else null,
         supportingContent = {
             AnimatedVisibility(visible = !value.isNullOrBlank()) {
                 Text(text = value.toString())

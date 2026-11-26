@@ -102,6 +102,7 @@
     <string name="block_number">番号をブロックする</string>
     <string name="block_numbers">複数の番号をブロックする</string>
     <string name="blocked_numbers">ブロックした番号</string>
+    <string name="blocked_numbers_count">ブロックした番号（%d件）</string>
     <string name="export_blocked_numbers">ブロックした番号をエクスポート</string>
     <string name="import_blocked_numbers">ブロックした番号をインポート</string>
     <string name="must_make_default_dialer">番号ブロックを活用するには、このアプリをデフォルトの電話アプリにする必要があります。</string>

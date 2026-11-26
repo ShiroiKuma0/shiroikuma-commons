@@ -8,7 +8,7 @@ A fork of [Fossify Commons](https://github.com/FossifyOrg/Commons) with **major 
 
 Consumed from **mavenLocal** by the 白い熊 forks (denwa, messeji, renrakusaki, yotehyo, …) as `org.fossify:commons:<upstream>-skN`. Two lines are kept: `7.1.3-skN` on branch `custom`, and `6.1.6-skN` on branch `custom-6.1.6` for the apps whose upstream has not moved to Commons 7 yet.
 
-**📥 Latest release: [`7.1.3-sk2`](https://github.com/ShiroiKuma0/shiroikuma-commons/releases/latest)** — [all releases »](https://github.com/ShiroiKuma0/shiroikuma-commons/releases)
+**📥 Latest release: [`7.1.3-sk3`](https://github.com/ShiroiKuma0/shiroikuma-commons/releases/latest)** — [all releases »](https://github.com/ShiroiKuma0/shiroikuma-commons/releases)
 
 </div>
 
@@ -88,10 +88,10 @@ Toasts raised through `Context.toast()` use a custom view — ground, text and a
 The `-skN` suffix is the fork’s patch revision on top of an upstream tag (currently based on `7.1.3`). Publish to the local Maven repo with:
 
 ```bash
-JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :commons:publishToMavenLocal -PVERSION=7.1.3-sk2
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :commons:publishToMavenLocal -PVERSION=7.1.3-sk3
 ```
 
-Consuming apps pin `commons = "7.1.3-sk2"` in their `gradle/libs.versions.toml` (`mavenLocal()` must be in their repositories). See `CLAUDE.md` for the full patch documentation and the rebase procedure for new upstream tags.
+Consuming apps pin `commons = "7.1.3-sk3"` in their `gradle/libs.versions.toml` (`mavenLocal()` must be in their repositories). See `CLAUDE.md` for the full patch documentation and the rebase procedure for new upstream tags.
 
 ## Built on Fossify Commons
 

@@ -3,6 +3,21 @@
 This file carries the history of the 白い熊 Commons fork. Upstream Fossify Commons keeps no changelog file;
 its releases are listed at https://github.com/FossifyOrg/Commons/releases.
 
+## 白い熊 Commons 7.1.3-sk3 — 2026-11-26
+
+### The blocked-numbers screen, in the family's look
+
+- **The list sits in an outlined box** that fills the rest of the screen, with “Blocked numbers (N)” on its top edge; the numbers scroll inside it.
+- **Rows are as tall as their text** — no 56 dp list item, no 48 dp touch box round the ⋮ — with a hairline between them and every second row faintly tinted.
+- **Numbers are spaced for reading**, the groups joined by hyphens: `+420-222-292-055`. A pattern or a name is shown as stored, and copying still copies the stored number.
+- **Two columns from 520 dp of width**, so an unfolded screen is not one long thin list. Long-press drag selection works across both columns.
+- **Both menus are pill menus**: the ⋮ of a number (copy, unblock) and the toolbar ⋮ (add, import, export) — full-width outlined pills with the icon inside at the left, the icon coloured by what the row does, a › where the row opens something, the panel in the menu ground and frame.
+- The two switch rows carry an icon each.
+- **Nine new colour roles**, all settable: the menu icon roles (view, share, block), the destructive menu row, list text and its second line, every second row, the list box frame and its heading. English and Japanese labels.
+- For other Compose screens: `FamilyDropdownMenu`, `FamilyMenuRow`, and `ActionItem(role, opens, destructive, overflowIcon)` for the overflow of `ActionMenu`.
+- All of it only under `BaseConfig.pillDialogButtons`; with it off the screen is stock.
+- Published as `org.fossify:commons:7.1.3-sk3`.
+
 ## 白い熊 Commons 7.1.3-sk2 — 2026-11-23
 
 ### Japanese, complete
